@@ -218,7 +218,7 @@ LTOOL=libtool -dynamic -install_name libsurfgen -current_version $(SGENVER)  -un
 
 SURFGENLIB= $(LDIR)/libsurfgen.a $(LIBS) $(LKOPT) $(LDFLAGS)
 # build everything
-all  :  surfgen libs tests
+all  :  surfgen libs tests evalsurf
 	@echo 'Finished building surfgen.'
 	@echo ''
 
@@ -309,6 +309,10 @@ libs  :  $(OBJV) $(OBJSL) | $(LDIR)
 	@echo '   echo surfgen found in PATH ' >> $(BDIR)/setsgenvars.csh
 	@echo 'endif' >> $(BDIR)/setsgenvars.csh
 
+evalsurf : libs $(SDIR)/evalsurf.o | $(BDIR)
+	@echo 'Building evalsurf.x'
+	$(CDS) $(COMPILER) -o $(BDIR)/evalsurf.x $(SDIR)/evalsurf.o $(LDIR)/libsurfgen.a $(LIBS) $(LKOPT) $(LDFLAGS)
+	@echo 'Finished building evalsurf.x'
 #
 clean:
 	-$(RM) $(OBJS) $(SDIR)/*.mod $(OBJSL) $(OBJT) $(OBJV) 

@@ -76,15 +76,15 @@ main( int argc, char *argv[] )
   /* allocate distances array */
   dist = malloc( (5 * 2) * sizeof( int ) );
   dist[0] = 1;
-  dist[1] = 2; /* C-O  bond distance */
+  dist[1] = 2; /* O-H1  bond distance */
   dist[2] = 1;
-  dist[3] = 5; /* O-H  bond distance */
-  dist[4] = 2;
-  dist[5] = 3; /* C-H1 bond distance */
+  dist[3] = 3; /* O-H2  bond distance */
+  dist[4] = 1;
+  dist[5] = 4; /* O-H3 bond distance */
   dist[6] = 2;
-  dist[7] = 4; /* C-H2 bond distance */
+  dist[7] = 3; /* H1-H2 bond distance */
   dist[8] = 2; 
-  dist[9] = 5; /* C-H3 bond distance */
+  dist[9] = 4; /* H1-H3 bond distance */
   /* allocate first node of data aray */
   ptdata = malloc( sizeof( struct point ) );
   /* 5 distances + 2 OOP angles */
@@ -190,7 +190,7 @@ void computedist( int *dist, int nrgeoms, struct geometry *rgeoms,
     } /* i */
     /* compute OOP angles */
     /* ( 5, 1, 2, 3 ) */
-    currptd->coord[i] = oop3d( &(currrgm->atom[4]), &(currrgm->atom[0]),
+    currptd->coord[i] = oop3d( &(currrgm->atom[3]), &(currrgm->atom[0]),
 			       &(currrgm->atom[1]), &(currrgm->atom[2]));
     i++;
     /* ( 3, 1, 2, 4 ) */
