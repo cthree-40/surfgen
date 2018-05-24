@@ -234,7 +234,15 @@ MODULE makesurfdata
 ! This parameter dictates if the scaled gradients and couplings will be used
 ! instead of real values to determine the addition of managed points.
   LOGICAL                                           :: mng_scale_grad 
-
+! Distance criterion. For a point to be added its distance must be less than
+! this value.
+  DOUBLE PRECISION                                  :: mng_ptdist
+! Distances to fully-weighted, fit points.
+  DOUBLE PRECISION,dimension(:), allocatable        :: mng_distances
+! Last skeletal point. This is useful for adding points via distance.
+! Distances will be given as the minimum distance to a point with
+! an index less than this number.
+  INTEGER                                           :: num_skpts
 ! If this parameter is set to true, 
   LOGICAL                                           :: deggrdbinding
 
@@ -2311,6 +2319,77 @@ stloop: do k = s1,s2
 !CALL DGEMV('T',nex,ncons,1d0,B,nex,y,1,1d0,tmp,1)
 !PRINT *,"RMSE IN g1:",SQRT(DOT_PRODUCT(TMP,TMP)/NCONS)
   END SUBROUTINE solve_diagHess
+
+!-------------------------------------------
+! Compute distance between points
+  FUNCTION getdist2(rgeom1,rgeom2) RESULT(min_d2)
+    USE progdata, ONLY: natoms
+    USE CNPI,     ONLY: coordPerm,nPmt
+    USE hddata,   ONLY: ncoord,nstates
+    IMPLICIT NONE
+    DOUBLE PRECISION                                  :: min_d2    
+    DOUBLE PRECISION,dimension(ncoord),intent(IN)     :: rgeom1,rgeom2
+    double precision,dimension(3*natoms-6)            :: rgeomp,minrgeomp    
+    double precision                                  :: d2
+    DOUBLE PRECISION,dimension(ncoord)                :: rgeomtmp
+    integer  :: i
+    rgeomtmp = rgeom1(coordperm(1,1:3*natoms-6))
+    rgeomp=rgeomtmp(1:3*natoms-6)-rgeom2(1:3*natoms-6)
+    min_d2=dot_product(rgeomp,rgeomp)
+    do i=2,nPmt
+      rgeomtmp = rgeom1(coordperm(i,1:3*natoms-6))
+      rgeomp=rgeomtmp(1:3*natoms-6)-rgeom2(1:3*natoms-6)
+      d2=dot_product(rgeomp,rgeomp)
+      if(d2<min_d2)then
+        min_d2=d2
+        minrgeomp = rgeomp
+      end if
+    end do
+    min_d2=dsqrt(min_d2)
+  END FUNCTION getdist2
+  !
+  !
+  FUNCTION compute_mind (cgeom) RESULT(mind)
+    use progdata, only: printlvl, natoms
+    use hddata,   only: nstates, ncoord
+    use CNPI,     only: coordPerm, nPmt
+    IMPLICIT NONE
+    double precision :: mind ! minimum distance to nearest geometry
+    double precision, dimension(natoms*3), intent(in) :: cgeom
+    integer          :: i
+    integer          :: max_pt
+    integer          :: dist
+    max_pt = num_skpts
+    if (max_pt .eq. 0) max_pt = npoints
+
+    mind = getdist2(cgeom,dispgeoms(1)%cgeom)
+    do i = 2, max_pt
+            dist = getdist2(cgeom,dispgeoms(i)%cgeom)
+            if (dist .lt. mind) then
+                    mind = dist
+            end if
+    end do
+    
+    
+  END FUNCTION compute_mind
+
+!---------------------------------------------
+! This subroutine computes the distances for each point to be managed.
+  SUBROUTINE ComputeManagedPointsDistances
+    IMPLICIT NONE
+    integer :: ptid ! id of point
+    integer :: i
+    
+    ! Loop over managed points
+    do i=1, NManagedPts
+            ptid = ManagedPts(i)
+            mng_distances(i) = compute_mind(dispgeoms(ptid)%cgeom)
+    end do
+    
+  END SUBROUTINE ComputeManagedPointsDistances
+
+
+  
 !---------------------------------------------
 ! This subroutine check the list of managed points to find out which ones can be
 ! added the next iteration.  The IncludePt vector is adjusted accordingly
@@ -2323,6 +2402,7 @@ stloop: do k = s1,s2
     NAdd=0
     do i=1,NManagedPts
       if(IncludePt(i))cycle
+      if(mng_distances(i) .gt. mng_ptdist)cycle      
       ptid=ManagedPts(i)
       do s1=1,nstates
         do s2=s1,nstates
@@ -2563,6 +2643,8 @@ SUBROUTINE makesurf()
       end do
     end if
   end do
+  ! compute distances for managed points
+  call ComputeManagedPointsDistances
   call AddManagedPoints
   call updateWeights
   asol = asol1
@@ -3375,7 +3457,7 @@ SUBROUTINE readMakesurf(INPUTFL)
                       energyT,highEScale,energyT_en,highEScale_en,maxd,scaleEx, ckl_output,ckl_input,dijscale,  diagHess, dconv,& 
                       dfstart,linSteps,flattening,searchPath,notefptn,gmfptn,enfptn,grdfptn,cpfptn,restartdir,orderall,&
                       gradcutoff,cpcutoff,mng_ener,mng_grad,mng_scale_ener,mng_scale_grad,GeomSymT,parseDiabats,loadDiabats,&
-                      sval_diabat
+                      sval_diabat, mng_ptdist, num_skpts
   ! set default for the parameters                    
   npoints   = 0
   sval_diabat=1d-10
@@ -3391,6 +3473,8 @@ SUBROUTINE readMakesurf(INPUTFL)
   mng_scale_grad = .true.
   mng_ener  = 2.d3
   mng_grad  = 3d-2
+  mng_ptdist= 0.1d0
+  num_skpts = 0
   orderall  = .true.
   diagHess  = -1d0
   autoshrink= .false.
@@ -3487,7 +3571,7 @@ SUBROUTINE readDispOptions(exclEner,exclGrad,exactEner,exactGrad,exactDiff,enfGO
   use hddata, only:nstates
   use progdata, only: PTFL,printlvl
   use makesurfdata,only:TEqList,npoints,NManagedPts,ManagedPts,ptWeights,TargetWt, &
-              IsManaged, IncludePt
+              IsManaged, IncludePt, mng_distances
   IMPLICIT NONE
   TYPE(TEqList),INTENT(OUT):: exclEner,exclGrad,exactEner,exactGrad,exactDiff,enfGO
   character(255)           :: comment
@@ -3608,6 +3692,9 @@ SUBROUTINE readDispOptions(exclEner,exclGrad,exactEner,exactGrad,exactDiff,enfGO
   if(allocated(IncludePt))deallocate(IncludePt)
   Allocate(IncludePt(NManagedPts))
   IncludePt=.false.
+  if(allocated(mng_distances))deallocate(mng_distances)
+  Allocate(mng_distances(NManagedPts))
+  mng_distances=0.0d0
   ptid=1
   do i=1,npoints
    if(IsManaged(i))then
