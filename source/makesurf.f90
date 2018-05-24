@@ -3473,7 +3473,7 @@ SUBROUTINE readMakesurf(INPUTFL)
   mng_scale_grad = .true.
   mng_ener  = 2.d3
   mng_grad  = 3d-2
-  mng_ptdist= 0.1d0
+  mng_ptdist= 100.0d0
   num_skpts = 0
   orderall  = .true.
   diagHess  = -1d0
