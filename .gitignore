@@ -23,5 +23,3 @@ surfgen.xcodeproj/project.xcworkspace/xcshareddata/
 build.log*
 *.sl
 utilities/polyhes
-examples/oh3/
-*.bz2
