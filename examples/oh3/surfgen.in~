@@ -1,0 +1,171 @@
+/
+&GENERAL
+printlvl  = 5
+jobtype   = 1
+natoms    = 4
+atmgrp    = 1, 2, 2, 3
+ngrp      = 4
+groupsym  = 1, 2, 2, 1
+groupprty = 1,-1, 1, 1
+order     = 2
+inputfl   = 'hd.data'
+/
+&MAKESURF
+enfDiab      = 2058
+eshift       = 76.6476575743
+usefij       = .false.
+deg_cap      = 2.d-3
+dijscale     = 1d0
+energyT      = 0.5D4,   0.6D4,  1.0D4,  1.0D6
+highEScale   = 5.0D-1, 3.0D-1, 1.0D-1, 2.0D-2
+useIntGrad   = .true.
+maxd         = 2d0
+cpcutoff     = 0.6D4
+gradcutoff   = 6.0D4
+dfstart      = 0
+intGradS     = 1D-2
+intGradT     = 1D-3
+rmsexcl      = -2
+SearchPath   =  '1.data-skeletal.c2v_path.oh_h2_to_h2o',
+                '2.data-skeletal.c2v_path.oh_h2_to_h2o',
+                '3.data-skeletal.c2v_path.oh_h2_to_h2o',
+                '1.data-h2o_asy.min_and_loop',
+                '2.data-h2o_asy.min_and_loop', 
+                '3.data-h2o_asy.min_and_loop',
+                '1.data-path.h2o_asy_TO_rrd3hts',
+                '2.data-path.h2o_asy_TO_rrd3hts',
+                '3.data-path.h2o_asy_TO_rrd3hts',
+                '1.data-oh+h2_asy.min_and_loop',
+                '2.data-oh+h2_asy.min_and_loop',
+                '3.data-oh+h2_asy.min_and_loop',
+                '1.data-val-reg.mex12_and_loop',
+                '2.data-val-reg.mex12_and_loop',
+                '3.data-val-reg.mex12_and_loop',
+                '1.data-valreg.mex23_and_loop',
+                '2.data-valreg.mex23_and_loop',
+                '3.data-valreg.mex23_and_loop',
+                '1.data-oh+h2.asy.min_and_loop-2',
+                '2.data-oh+h2.asy.min_and_loop-2',
+                '3.data-oh+h2.asy.min_and_loop-2',
+                '1.data-valreg.mex23_and_loop-2',
+                '2.data-valreg.mex23_and_loop-2',
+                '3.data-valreg.mex23_and_loop-2',
+                '1.data-valreg.mex12_and_loop-2',
+                '2.data-valreg.mex12_and_loop-2',
+                '3.data-valreg.mex12_and_loop-2',
+                '1.data-valreg.mex23_and_loop-3',
+                '2.data-valreg.mex23_and_loop-3',
+                '3.data-valreg.mex23_and_loop-3',
+                '1.data-valreg.mex12_and_loop-3',
+                '2.data-valreg.mex12_and_loop-3',
+                '3.data-valreg.mex12_and_loop-3',
+                '1.data-path.valregmex23_valregmex12',
+                '2.data-path.valregmex23_valregmex12',
+                '3.data-path.valregmex23_valregmex12',
+                '1.data-path.valregmex23_lnkregsad',
+                '2.data-path.valregmex23_lnkregsad',
+                '3.data-path.valregmex23_lnkregsad',
+                '1.data-lnk-reg.ts_and_loop',
+                '2.data-lnk-reg.ts_and_loop',
+                '3.data-lnk-reg.ts_and_loop',
+                '1.data-lnkreg.ts_and_loop-3',
+                '2.data-lnkreg.ts_and_loop-3',
+                '3.data-lnkreg.ts_and_loop-3',
+                '1.data-lnk-reg.ts_and_loop-2',
+                '2.data-lnk-reg.ts_and_loop-2',
+                '3.data-lnk-reg.ts_and_loop-2',
+                '1.data-path.valregmex12_h2o+h.asy',
+                '2.data-path.valregmex12_h2o+h.asy',
+                '3.data-path.valregmex12_h2o+h.asy',
+                '1.data-path.lrts_to_oh+h2',
+                '2.data-path.lrts_to_oh+h2',
+                '3.data-path.lrts_to_oh+h2',
+                '1.data-oh+h2.st3min.min_and_loop',
+                '2.data-oh+h2.st3min.min_and_loop',
+                '3.data-oh+h2.st3min.min_and_loop',
+                '1.data-oh+h2.st3min_and_loop-2',
+                '2.data-oh+h2.st3min_and_loop-2',
+                '3.data-oh+h2.st3min_and_loop-2',
+                '1.data-path.vdwmin_oh+h2_asy',
+                '2.data-path.vdwmin_oh+h2_asy',
+                '3.data-path.vdwmin_oh+h2_asy',
+                '1.data-oh_h2.vdwmin.min_and_loop',
+                '2.data-oh_h2.vdwmin.min_and_loop',
+                '3.data-oh_h2.vdwmin.min_and_loop',
+                '1.data-oh_h2.vdwminst3_to_oh+h2struct.path1_outofplane',
+                '2.data-oh_h2.vdwminst3_to_oh+h2struct.path1_outofplane',
+                '3.data-oh_h2.vdwminst3_to_oh+h2struct.path1_outofplane',
+                '1.data-oh_h2.vdwminst3_to_oh+h2struct.path1_inplane',
+                '2.data-oh_h2.vdwminst3_to_oh+h2struct.path1_inplane',
+                '3.data-oh_h2.vdwminst3_to_oh+h2struct.path1_inplane',
+                '1.data-oh_h2.vdwmin.min_and_loop-3',
+                '2.data-oh_h2.vdwmin.min_and_loop-3',
+                '3.data-oh_h2.vdwmin.min_and_loop-3',
+                '1.data-lnk-reg.saddle.disps0.001',
+                '2.data-lnk-reg.saddle.disps0.001',
+                '3.data-lnk-reg.saddle.disps0.001',
+                '1.data-lnk-reg.saddle.disps0.005',
+                '2.data-lnk-reg.saddle.disps0.005',
+                '3.data-lnk-reg.saddle.disps0.005',
+                '1.data-path.rrminst1_oh+h2st3',
+                '2.data-path.rrminst1_oh+h2st3',
+                '3.data-path.rrminst1_oh+h2st3',
+                '1.data-rr.min.st1.min_and_loop',
+                '1.data-path.rrd3hts_TO_lrts',
+                '2.data-path.rrd3hts_to_lrts',
+                '3.data-path.rrd3hts_TO_lrts',
+                '1.data-oh_h2.c2vpath_to_oh+h2struct',
+                '2.data-oh_h2.c2vpath_to_oh+h2struct',
+                '3.data-oh_h2.c2vpath_to_oh+h2struct',
+                '1.data-path.c2vpath_to_d3hpt', 
+                '2.data-path.c2vpath_to_d3hpt',
+                '3.data-path.c2vpath_to_d3hpt', 
+                '1.data-path.oh_h2.vdwminst1_vdwminst3',
+                '2.data-path.oh_h2.vdwminst1_vdwminst3',
+                '3.data-path.oh_h2.vdwminst1_vdwminst3',
+                '1.data-path.vdwminst3_oh3struct',
+                '2.data-path.vdwminst3_oh3struct',
+                '3.data-path.vdwminst3_oh3struct',
+                '1.data-path.oh3struct_oh+h2', 
+                '2.data-path.oh3struct_oh+h2',
+                '3.data-path.oh3struct_oh+h2', 
+                '1.data-oh_h2.vdwmin.i.appxmin_and_loop',
+                '2.data-oh_h2.vdwmin.i.appxmin_and_loop',
+                '3.data-oh_h2.vdwmin.i.appxmin_and_loop',
+npoints      = 8000
+cpfptn       = 999*'cartgrd_total.drt1.state$.drt1.state$.all'
+restartdir   = restart
+gcutoff      = 1D-7
+maxiter      = 30
+followPrev   = .false.
+guide        = 'ckl.guide'
+toler        = 1D-3
+LSETol       = 1.0D-8
+flattening   = 1.0D-9
+exactTol     = 1.0D-7
+tbas         = 1d-7
+printError   =.true.
+gorder       = 200
+outputfl     = 'hd.data2'
+flheader     = 'high order tester'
+w_energy     = 1D0
+w_grad       = 3D-1
+w_fij        = 3D-1
+nrmediff     = 2D3
+ediffcutoff  = 2D3
+ndstart      = 300
+ndiis        = 2
+ckl_output = 'ckl.out'
+jshift       = 0.0
+autoshrink   = .false.
+parsediabats =.false.
+loaddiabats = .false.
+mng_ener = 1000d0
+mng_grad = 5d-2
+mng_scale_ener = .true.
+mng_scale_grad = .true.
+mng_ptdist=0.01d0
+num_skpts=2098
+/
+&potlib
+/

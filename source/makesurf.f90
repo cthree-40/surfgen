@@ -2349,27 +2349,24 @@ stloop: do k = s1,s2
   END FUNCTION getdist2
   !
   !
-  FUNCTION compute_mind (cgeom) RESULT(mind)
+  FUNCTION compute_mind (igeom) RESULT(mind)
     use progdata, only: printlvl, natoms
-    use hddata,   only: nstates, ncoord
-    use CNPI,     only: coordPerm, nPmt
     IMPLICIT NONE
     double precision :: mind ! minimum distance to nearest geometry
-    double precision, dimension(natoms*3), intent(in) :: cgeom
+    double precision, dimension(natoms*3), intent(in) :: igeom
     integer          :: i
     integer          :: max_pt
-    integer          :: dist
+    double precision :: dist
     max_pt = num_skpts
     if (max_pt .eq. 0) max_pt = npoints
 
-    mind = getdist2(cgeom,dispgeoms(1)%cgeom)
+    mind = getdist2(igeom,dispgeoms(1)%igeom)
     do i = 2, max_pt
-            dist = getdist2(cgeom,dispgeoms(i)%cgeom)
+            dist = getdist2(igeom,dispgeoms(i)%igeom)
             if (dist .lt. mind) then
                     mind = dist
             end if
     end do
-    
     
   END FUNCTION compute_mind
 
@@ -2383,9 +2380,10 @@ stloop: do k = s1,s2
     ! Loop over managed points
     do i=1, NManagedPts
             ptid = ManagedPts(i)
-            mng_distances(i) = compute_mind(dispgeoms(ptid)%cgeom)
+            mng_distances(i) = compute_mind(dispgeoms(ptid)%igeom)
+            print *, "distance = ", mng_distances(i)
     end do
-    
+    stop
   END SUBROUTINE ComputeManagedPointsDistances
 
 
@@ -2402,6 +2400,11 @@ stloop: do k = s1,s2
     NAdd=0
     do i=1,NManagedPts
       if(IncludePt(i))cycle
+      ! DEBUGGING
+      if (mng_distances(i) .le. mng_ptdist) then
+              print *, "Point ", ManagedPts(i), " satisfies distance requirement"
+              print *, "    dist = ", mng_distances(i)
+      end if
       if(mng_distances(i) .gt. mng_ptdist)cycle      
       ptid=ManagedPts(i)
       do s1=1,nstates
