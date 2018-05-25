@@ -136,7 +136,7 @@ npoints      = 8000
 cpfptn       = 999*'cartgrd_total.drt1.state$.drt1.state$.all'
 restartdir   = restart
 gcutoff      = 1D-7
-maxiter      = 1
+maxiter      = 5
 followPrev   = .false.
 guide        = 'ckl.guide'
 toler        = 1D-3
@@ -160,11 +160,11 @@ jshift       = 0.0
 autoshrink   = .false.
 parsediabats =.false.
 loaddiabats = .false.
-mng_ener = 1000d0
-mng_grad = 5d-2
+mng_ener = 2000d0
+mng_grad = 5d-1
 mng_scale_ener = .true.
 mng_scale_grad = .true.
-mng_ptdist=0.01d0
+mng_ptdist=0.2d0
 num_skpts=2098
 /
 &potlib

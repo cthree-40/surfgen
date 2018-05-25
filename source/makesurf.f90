@@ -2381,9 +2381,7 @@ stloop: do k = s1,s2
     do i=1, NManagedPts
             ptid = ManagedPts(i)
             mng_distances(i) = compute_mind(dispgeoms(ptid)%igeom)
-            print *, "distance = ", mng_distances(i)
     end do
-    stop
   END SUBROUTINE ComputeManagedPointsDistances
 
 
@@ -2399,13 +2397,10 @@ stloop: do k = s1,s2
     double precision :: e_error, g_error
     NAdd=0
     do i=1,NManagedPts
+
       if(IncludePt(i))cycle
-      ! DEBUGGING
-      if (mng_distances(i) .le. mng_ptdist) then
-              print *, "Point ", ManagedPts(i), " satisfies distance requirement"
-              print *, "    dist = ", mng_distances(i)
-      end if
       if(mng_distances(i) .gt. mng_ptdist)cycle      
+
       ptid=ManagedPts(i)
       do s1=1,nstates
         do s2=s1,nstates

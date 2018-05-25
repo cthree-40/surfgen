@@ -12584,8 +12584,12 @@
   Number of Least Squares Equations:                61867
   Number of Exact Equations:                          0
 
-  Maximum Number of iterations:                            1
+  Maximum Number of iterations:                            5
   Coefficient convergence tolerance:                0.00100000
   Threshold for gradient values:                    0.00000010
 
 
+ Iteration   0: Delta= 0.11E+03, d[g]%=   9.51, <d[g]%>=   4.57%, d[E]=  189.44, <d[E]>=   73.48
+ Iteration   1: Delta= 0.20E+01, d[g]%=   9.51, <d[g]%>=   4.57%, d[E]=  188.76, <d[E]>=   73.39
+ Iteration   2: Delta= 0.20E+01, d[g]%=   9.52, <d[g]%>=   4.57%, d[E]=  188.10, <d[E]>=   73.31
+ Iteration   3: Delta= 0.20E+01, d[g]%=   9.52, <d[g]%>=   4.57%, d[E]=  187.47, <d[E]>=   73.27
