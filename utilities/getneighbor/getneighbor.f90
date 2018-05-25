@@ -49,6 +49,7 @@ program getneighbor
                   if (dnrm2(3*num_atoms,bmat(dcoordls(j),1),ncoord)>cvanish)nc=nc+1
           end do
   end if
+  print *, dist
   dist = dist / sqrt(dble(nc))
   print "(f14.2)", energy*219474.63
   print *, "Neighbor: ", neighbor
@@ -66,7 +67,7 @@ contains
             action = "read", iostat = ios)
     if (ios .ne. 0) stop "Error reading geometry from file."
     do i = 1, na
-            read(unit = 15, fmt = "(9x,f14.8,f14.8,f14.8,14x)") &
+            read(unit = 15, fmt = "(10x,f14.8,f14.8,f14.8,14x)") &
                     gm(1,i), gm(2,i), gm(3,i)
     end do
     close(unit = 15)

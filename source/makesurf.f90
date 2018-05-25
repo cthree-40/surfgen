@@ -2345,7 +2345,7 @@ stloop: do k = s1,s2
         minrgeomp = rgeomp
       end if
     end do
-    min_d2=dsqrt(min_d2)
+    min_d2=dsqrt(min_d2)/dsqrt(dble(3*natoms-6))
   END FUNCTION getdist2
   !
   !
@@ -2643,6 +2643,12 @@ SUBROUTINE makesurf()
   end do
   ! compute distances for managed points
   call ComputeManagedPointsDistances
+  if(printlvl>4)then
+    do i=1,NManagedPts
+      print "(A,i,A,f12.7)", "Point ", ManagedPts(i), &
+              " distance is ", mng_distances(i)
+      end do
+  end if
   call AddManagedPoints
   call updateWeights
   asol = asol1
