@@ -2370,7 +2370,7 @@ stloop: do k = s1,s2
     mind = getdist2(igeom,dispgeoms(1)%igeom)
     do i = 2, max_pt
             dist = getdist2(igeom,dispgeoms(i)%igeom)
-            if (dist .lt. mind) then
+            if (dist .lt. mind .and. abs(ptWeights(i) - 1d0) .lt. 1.0d-8) then
                     mind = dist
             end if
     end do
@@ -2385,7 +2385,7 @@ stloop: do k = s1,s2
     integer :: i
     
     ! Loop over managed points
-    do i=2, 2
+    do i=1, NManagedPts
             ptid = ManagedPts(i)
             mng_distances(i) = compute_mind(dispgeoms(ptid)%igeom)
     end do
