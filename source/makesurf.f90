@@ -239,6 +239,11 @@ MODULE makesurfdata
   DOUBLE PRECISION                                  :: mng_ptdist
 ! Distances to fully-weighted, fit points.
   DOUBLE PRECISION,dimension(:), allocatable        :: mng_distances
+! To compute distances, surfgen needs information on which coordinates to use.
+! This mimics "dcoordls" and "ndcoord" function in POTDATA.
+  INTEGER,PARAMETER :: mng_MaxNDCoord=200
+  INTEGER           :: mng_ndcoord
+  INTEGER           :: mng_dcoordls(mng_MaxNDCoord)
 ! Last skeletal point. This is useful for adding points via distance.
 ! Distances will be given as the minimum distance to a point with
 ! an index less than this number.
@@ -2329,29 +2334,25 @@ stloop: do k = s1,s2
     IMPLICIT NONE
     DOUBLE PRECISION                                  :: min_d2    
     DOUBLE PRECISION,dimension(ncoord),intent(IN)     :: rgeom1,rgeom2
-    double precision,dimension(3*natoms-6)             :: rgeomp,minrgeomp    
+    double precision,dimension(mng_ndcoord)           :: rgeomp,minrgeomp    
     double precision                                  :: d2
     DOUBLE PRECISION,dimension(ncoord)                :: rgeomtmp
     integer  :: i
-    rgeomtmp = rgeom1(coordperm(1,1:3*natoms-6))
-    print *, "rgeomtmp = ", rgeomtmp
-    stop
-    rgeomp=rgeomtmp(1:3*natoms-6)-rgeom2(1:3*natoms-6)
+    rgeomtmp = rgeom1(coordperm(1,mng_dcoordls(1:mng_ndcoord)))
+    rgeomp= rgeomtmp(mng_dcoordls(1:mng_ndcoord))- &
+            rgeom2(mng_dcoordls(1:mng_ndcoord))
     min_d2=dot_product(rgeomp,rgeomp)
     do i=2,nPmt
-      rgeomtmp = rgeom1(coordperm(i,1:3*natoms-6))
-      rgeomp=rgeomtmp(1:3*natoms-6)-rgeom2(1:3*natoms-6)
+      rgeomtmp = rgeom1(coordperm(i,mng_dcoordls(1:mng_ndcoord)))
+      rgeomp=rgeomtmp(mng_dcoordls(1:mng_ndcoord))- &
+              rgeom2(mng_dcoordls(1:mng_ndcoord))
       d2=dot_product(rgeomp,rgeomp)
       if(d2<min_d2)then
         min_d2=d2
         minrgeomp = rgeomp
       end if
     end do
-    print *, "min_d2 = ", dsqrt(min_d2)
-    print *, ""
-    print *, "minrgeomp = ", minrgeomp
-    print *, ""
-    min_d2=dsqrt(min_d2)/dsqrt(dble(3*natoms-6))
+    min_d2=dsqrt(min_d2)/dsqrt(dble(mng_ndcoord))
   END FUNCTION getdist2
   !
   !
@@ -3467,7 +3468,7 @@ SUBROUTINE readMakesurf(INPUTFL)
                       energyT,highEScale,energyT_en,highEScale_en,maxd,scaleEx, ckl_output,ckl_input,dijscale,  diagHess, dconv,& 
                       dfstart,linSteps,flattening,searchPath,notefptn,gmfptn,enfptn,grdfptn,cpfptn,restartdir,orderall,&
                       gradcutoff,cpcutoff,mng_ener,mng_grad,mng_scale_ener,mng_scale_grad,GeomSymT,parseDiabats,loadDiabats,&
-                      sval_diabat, mng_ptdist, num_skpts
+                      sval_diabat, mng_ptdist, num_skpts, mng_ndcoord, mng_dcoordls
   ! set default for the parameters                    
   npoints   = 0
   sval_diabat=1d-10
@@ -3485,6 +3486,10 @@ SUBROUTINE readMakesurf(INPUTFL)
   mng_grad  = 3d-2
   mng_ptdist= 100.0d0
   num_skpts = 0
+  do i=1, mng_MaxNDCoord
+    mng_dcoordls(i) = i
+  end do
+  mng_ndcoord = 3
   orderall  = .true.
   diagHess  = -1d0
   autoshrink= .false.

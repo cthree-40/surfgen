@@ -569,7 +569,24 @@ This parameter specifies if the energy errors will be scaled by the high energy 
 set to true if the scaling weight is extremely small.
 .It mng_scale_grad
 .Sy LOGICAL [.true.]
-This parameter specifies if the gradient and coupling errors will be scaled by the high energy scaling schemes.  
+This parameter specifies if the gradient and coupling errors will be scaled by the high energy scaling schemes.
+.It mng_ptdist
+.Sy DOUBLE PRECISION [100.0d0]
+Distance threshold. A point can only be added if it is less than this distance from points 1..
+.Sy mng_skpts
+.It mng_skpts
+.Sy INTEGER [0]
+Upper-bound of point set to use for computing distances to managed point set.
+.It mng_ndcoord
+.Sy INTEGER [3]
+Number of basis coordinates to be used for distance calculations. Max is 200. See
+.Sy ndcoord
+for more.
+.It mng_dcoordls
+.Sy INTEGER, dimension(mng_ndcoord)
+Indices of basis coordinates to be used for distance calculations. See
+.Sy dcoordls
+for more.
 .El
 .Pp
 .Ss POTLIB
