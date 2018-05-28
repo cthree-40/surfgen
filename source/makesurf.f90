@@ -2329,11 +2329,13 @@ stloop: do k = s1,s2
     IMPLICIT NONE
     DOUBLE PRECISION                                  :: min_d2    
     DOUBLE PRECISION,dimension(ncoord),intent(IN)     :: rgeom1,rgeom2
-    double precision,dimension(3*natoms-6)            :: rgeomp,minrgeomp    
+    double precision,dimension(3*natoms-6)             :: rgeomp,minrgeomp    
     double precision                                  :: d2
     DOUBLE PRECISION,dimension(ncoord)                :: rgeomtmp
     integer  :: i
     rgeomtmp = rgeom1(coordperm(1,1:3*natoms-6))
+    print *, "rgeomtmp = ", rgeomtmp
+    stop
     rgeomp=rgeomtmp(1:3*natoms-6)-rgeom2(1:3*natoms-6)
     min_d2=dot_product(rgeomp,rgeomp)
     do i=2,nPmt
@@ -2345,6 +2347,10 @@ stloop: do k = s1,s2
         minrgeomp = rgeomp
       end if
     end do
+    print *, "min_d2 = ", dsqrt(min_d2)
+    print *, ""
+    print *, "minrgeomp = ", minrgeomp
+    print *, ""
     min_d2=dsqrt(min_d2)/dsqrt(dble(3*natoms-6))
   END FUNCTION getdist2
   !
@@ -2378,7 +2384,7 @@ stloop: do k = s1,s2
     integer :: i
     
     ! Loop over managed points
-    do i=1, NManagedPts
+    do i=2, 2
             ptid = ManagedPts(i)
             mng_distances(i) = compute_mind(dispgeoms(ptid)%igeom)
     end do

@@ -51,7 +51,6 @@ program evalsurf
                   print *, ""
           end do
   end do
-
   call CalculateHessians(natoms,geom,nstates,stepsize,hessE)
   do i = 1, nstates
           print *, i, ":  "
