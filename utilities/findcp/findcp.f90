@@ -200,7 +200,7 @@ end subroutine calcHess
 
 !----search for minimum on adiabatic surfaces 
 subroutine findmin(natoms,nstate,cgeom,isurf,maxiter,shift,Etol,Stol,gscale,hess_disp,MAXD, &
-   masses, sadd_srch, converge_test)
+   masses, sadd_srch, converge_test, mol, anm)
   implicit none
   integer, intent(in)                                 ::  natoms,isurf,maxiter,nstate
   double precision,dimension(3*natoms),intent(inout)  ::  cgeom
@@ -208,6 +208,8 @@ subroutine findmin(natoms,nstate,cgeom,isurf,maxiter,shift,Etol,Stol,gscale,hess
   double precision,intent(in)                         ::  shift,Etol,Stol, gscale, hess_disp
   double precision, intent(in)                        :: MAXD !Max displacement size
   character(len=1),intent(in)                         :: sadd_srch
+  logical, intent(in)                                 :: mol
+  character*3, dimension(natoms), intent(in)          :: anm
   
   real*8    ::  h(nstate,nstate),cg(3*natoms,nstate,nstate),dcg(3*natoms,nstate,nstate),e(nstate)
   double precision,dimension(3*natoms)  ::  grad, b1, b2, w
@@ -221,7 +223,7 @@ subroutine findmin(natoms,nstate,cgeom,isurf,maxiter,shift,Etol,Stol,gscale,hess
   double precision, external  :: dnrm2
   double precision,  parameter  :: amu2au=1.822888484514D3,au2cm1=219474.6305d0
   double precision,dimension(:),allocatable  :: rem_modes
-  
+  double precision, parameter :: au2ang = 0.529
   character*3,dimension(natoms) :: ctmp
 
   ! Derived type for normal mode removal in eigenvalue decomposition procedure.
@@ -249,10 +251,27 @@ subroutine findmin(natoms,nstate,cgeom,isurf,maxiter,shift,Etol,Stol,gscale,hess
   allocate(rem_modes(3*natoms))
   allocate(rem_mode(3*natoms))
 
+  ! Molden output, open molden.all file.
+  if (mol) then
+     open(file="molden.all",unit=88,status="unknown",action="write",position="rewind")
+     write(88,"(' [Molden Format]')")
+     write(88,"(' [GEOMETRIES] XYZ')")
+  end if
+  
   print "(A,I4,A,I4,A)","Searching for minimum on surface ",isurf," in ",maxiter," iterations."
   print "(A)","  Convergence Tolerances"
   print "(A,E10.2,A,E10.2)","  Energy Gradient: ",Etol,"   Displacement:",Stol
   do iter=1,maxiter
+
+      if (mol) then
+         write(88, "(i2,X,A)") natoms, "/coord"
+         write(88, "(i2,X,A)") (iter-1), "/current iter"
+         do i = 1, natoms
+             write(88, "(3X,A,3F11.6)") anm(i), cgeom(i*3-2)*au2ang, &
+                     cgeom(i*3-1)*au2ang, cgeom(i*3)*au2ang
+         end do
+     end if
+ 
      call EvaluateSurfgen(cgeom,e,cg,h,dcg)
      grad = cg(:,isurf,isurf)
      nrmG=dnrm2(3*natoms,grad,1)
@@ -324,7 +343,8 @@ subroutine findmin(natoms,nstate,cgeom,isurf,maxiter,shift,Etol,Stol,gscale,hess
        converge_test=1
        return
      end if
-  end do 
+   end do
+   close(88)
 1000 format("Iteration ",I4,": E=",F20.4,", |Grd|=",E12.5,", |Disp|=",E12.5)
 1001 format("Modes Removed: ",I4,F14.8)
 end subroutine findmin
@@ -474,7 +494,7 @@ program findcp
   print "(/,A)","----------- Geometry Optimizations ---------"
   converge_test=0
   call findmin(natm,nst,cgeom,isurf,niter,shift,egrad_tol ,disp_tol,grad_scale,hess_disp,&
-    maxdisp, masses, sadd_search, converge_test)
+    maxdisp, masses, sadd_search, converge_test, molden, aname)
   print "(/,A)","--------------- Final Geometry -------------"
   call analysegeom(natm,cgeom,aname,anum,masses,2d0,.true.)
   print "(/,A)","------------ Harmonic Frequencies ----------"
