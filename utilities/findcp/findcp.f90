@@ -397,6 +397,7 @@ program findcp
   
   integer               :: niter, printlvl
   double precision      :: egrad_tol, shift, disp_tol, grad_scale, hess_disp, maxdisp
+  double precision      :: bndcutoff
   character*1           :: sadd_search
   logical               :: check_inputfl, molden, ant_output
   character*300         :: new_geomfl, old_geomfl
@@ -418,7 +419,8 @@ program findcp
   printlvl=0                        ! Print level
   molden=.false.                    ! Generate molden output
   ant_output=.false.                ! Print final geometry in ANT format
-
+  bndcutoff=4d0                     ! Threshold to report distance between atoms
+  
   print *," ***************************************** "
   print *," *    findcp.x                           * "
   print *," ***************************************** "
@@ -488,7 +490,7 @@ program findcp
   call readColGeom(geomfile,1,natm,aname,anum,cgeom,masses)
 
   print "(/,A)","-------------- Initial Geometry ------------"
-  call analysegeom(natm,cgeom,aname,anum,masses,2d0,.true.)
+  call analysegeom(natm,cgeom,aname,anum,masses,bndcutoff,.true.)
   print "(/,A)"," Printing original geometry "
   call analysegeom2(natm,cgeom,aname,anum,masses,old_geomfl)
   print "(/,A)","----------- Geometry Optimizations ---------"
@@ -496,7 +498,7 @@ program findcp
   call findmin(natm,nst,cgeom,isurf,niter,shift,egrad_tol ,disp_tol,grad_scale,hess_disp,&
     maxdisp, masses, sadd_search, converge_test, molden, aname)
   print "(/,A)","--------------- Final Geometry -------------"
-  call analysegeom(natm,cgeom,aname,anum,masses,2d0,.true.)
+  call analysegeom(natm,cgeom,aname,anum,masses,bndcutoff,.true.)
   print "(/,A)","------------ Harmonic Frequencies ----------"
   call calcHess(natm,cgeom,nst,isurf,hess_disp,hess,.true.,skip)
   call writeHess(hess,3*natm)
