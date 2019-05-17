@@ -23,13 +23,10 @@ program findmex
   double precision,allocatable  :: cgeom(:)
   integer,parameter :: MAXCONS=20
   double precision  :: shift, gtol, dtol, evalcutoff,maxd, scale,cons_val(MAXCONS)
-  integer           :: maxiter,ncons,cons_atm(4,MAXCONS)
+  integer           :: maxiter,ncons,cons_atm(3,MAXCONS)
   logical  :: ex
   integer,parameter :: fid=326
   character*300 :: new_geomfl
-  integer           :: constype(MAXCONS) ! constraint types: 1=stretch,2=bend,3=OOP
-  double precision, parameter       :: deg2rad=0.01745329251994d0
-  
   NAMELIST /MEXOPT/  shift, gtol, dtol, evalcutoff,maxd, maxiter, scale, ncons, cons_atm, cons_val
 
   new_geomfl="new.geom"
@@ -62,11 +59,9 @@ program findmex
       if(ncons>MAXCONS)ncons=MAXCONS
       if(any(cons_atm(1:2,1:ncons)<1) .or. any(cons_atm(3,1:ncons)<0) .or. &
          any(cons_atm(1,1:ncons)==cons_atm(2,1:ncons)).or.any(cons_atm(1,1:ncons)==cons_atm(3,1:ncons)).or.&
-         any(cons_atm(1,1:ncons)==cons_atm(4,1:ncons)).or.any(cons_atm(2,1:ncons)==cons_atm(3,1:ncons)).or.&
-         any(cons_atm(2,1:ncons)==cons_atm(4,1:ncons)).or.&
-         any(cons_atm(:,1:ncons)>natm)) then
+         any(cons_atm(2,1:ncons)==cons_atm(3,1:ncons)) .or. any(cons_atm(:,1:ncons)>natm)) then
             print *,"input atom index for each coordinate constraints:"
-            print "(4I4)",cons_atm(:,1:ncons)
+            print "(3I4)",cons_atm(:,1:ncons)
             stop "invalid atom index"
       end if
       close(fid)
@@ -118,25 +113,8 @@ program findmex
   print *,"--------------- Initial Geometries ------------------"
   call analysegeom(natm,cgeom,aname,anum,masses,2.5d0,.true.)
 
-  ! Set constraint types
-  do i=1, ncons
-          if (cons_atm(3,i) .eq. 0) then
-                  ! Stretch
-                  constype(i) = 1
-          else if (cons_atm(4,i) .eq. 0) then
-                  ! Angle
-                  constype(i) = 2
-          else
-                  ! OOP
-                  cons_val(i) = cons_val(i) * deg2rad
-                  constype(i) = 3
-          end if
-  enddo
-  
-  
   ! search for intersections
-  call findx(natm,nst,cgeom,isurf1,isurf2,maxiter,shift,evalcutoff,gtol,&
-          dtol,maxd,scale,ncons,cons_atm,cons_val,constype)
+  call findx(natm,nst,cgeom,isurf1,isurf2,maxiter,shift,evalcutoff,gtol,dtol,maxd,scale,ncons,cons_atm,cons_val)
 
   ! print final geometry information
   print *,"---------------  Final Geometries  ------------------"
@@ -205,12 +183,11 @@ end subroutine calcHess
 !This is then used to construct the Hessian and gradient of the Lagrangian.
 !Newton-Raphson procedure is used to find the critical point.
 !Energy part of the Hessian is done numerically
-subroutine findx(natoms,nstate,cgeom,surf1,surf2,maxiter,shift,evalcutoff,Etol,Stol,maxd,scale,nc,cons_atm,cons_val,constype)
+subroutine findx(natoms,nstate,cgeom,surf1,surf2,maxiter,shift,evalcutoff,Etol,Stol,maxd,scale,nc,cons_atm,cons_val)
   implicit none
-  integer, intent(in)                                 ::  natoms,surf1,surf2,maxiter,nstate,nc,cons_atm(4,nc)
+  integer, intent(in)                                 ::  natoms,surf1,surf2,maxiter,nstate,nc,cons_atm(3,nc)
   double precision,dimension(3*natoms),intent(inout)  ::  cgeom
   double precision,intent(in)                         ::  shift,Etol,Stol,evalcutoff,maxd,scale,cons_val(nc)
-  integer,intent(in)                         ::  constype(nc)
 
   integer   :: ndeg  ! number of degenerate states
   integer   :: noffd ! number of off-diagonals that has to vanish 
@@ -228,7 +205,6 @@ subroutine findx(natoms,nstate,cgeom,surf1,surf2,maxiter,shift,evalcutoff,Etol,S
   double precision                  :: nrmG, nrmD,tmp(1),bval(12),transrot(3*natoms,6),center(3),ovlp(6)
   double precision, external        :: dnrm2
   double precision, parameter       :: amu2au=1.822888484514D3,au2cm1=219474.6305d0
-
   integer           :: offs
   integer           :: LIWORK, LWORK, itmp(1),INFO
   integer           :: iter  , i,j,lindex,nskip
@@ -326,31 +302,23 @@ subroutine findx(natoms,nstate,cgeom,surf1,surf2,maxiter,shift,evalcutoff,Etol,S
      end do
      ! part 3 : coordinate constraint part
      do i=1,nc
-             hess(:,lindex) =  0d0
-             if(constype(i) .eq. 3)then
-                     ! it is an OOP coordinate
-                     call oop(natoms,cons_atm(:,i),cgeom,coord_val(i),bval,0);
-                     do j=1,4
-                             offs=3*(cons_atm(j,i)-1)
-                             hess(offs+1:offs+3,lindex) = bval(3*j-2:3*j)
-                     end do!j=1,4
-             else if(constype(i) .eq. 2)then
-                     ! it is an angle
-                     call bend(natoms,cons_atm(:,i),cgeom,coord_val(i),bval,5.72957795131d1,0,0d0) ! convert to degrees
-                     do j=1,3
-                             offs = 3*(cons_atm(j,i)-1)
-                             hess(offs+1:offs+3,lindex) =  bval(3*j-2:3*j)
-                     end do!j=1,3
-             else if (constype(i) .eq. 1) then
-                     !it is a distance
-                     call stre(natoms,cons_atm(1,i),cons_atm(2,i),cgeom,coord_val(i),bval)
-                     do j=1,2
-                             offs = 3*(cons_atm(j,i)-1)
-                             hess(offs+1:offs+3,lindex) =  bval(3*j-2:3*j)
-                     end do!j=1,2
-             end if
-             hess(lindex,1:3*natoms)=hess(1:3*natoms,lindex)
-             lindex=lindex+1
+        hess(:,lindex) =  0d0
+        if(cons_atm(3,i).ne.0)then
+        ! it is an angle
+            call bend(natoms,cons_atm(:,i),cgeom,coord_val(i),bval,5.72957795131d1,0,0d0) ! convert to degrees
+            do j=1,3
+                offs = 3*(cons_atm(j,i)-1)
+                hess(offs+1:offs+3,lindex) =  bval(3*j-2:3*j)
+            end do!j=1,3
+        else !it is a distance
+            call stre(natoms,cons_atm(1,i),cons_atm(2,i),cgeom,coord_val(i),bval)
+            do j=1,2
+                offs = 3*(cons_atm(j,i)-1)
+                hess(offs+1:offs+3,lindex) =  bval(3*j-2:3*j)
+            end do!j=1,2
+        end if
+        hess(lindex,1:3*natoms)=hess(1:3*natoms,lindex)
+        lindex=lindex+1
      end do!i=1,nc
      !the LM-LM block is zero
      hess(3*natoms+1:neq,3*natoms+1:neq)=0d0

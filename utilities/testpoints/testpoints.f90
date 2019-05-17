@@ -14,6 +14,7 @@
 ! 12-18-2015 - CLM - Molden output is mass-weighted if selected
 !                     in input.
 !                    Added print level implementation.
+! 04-23-2019 - CLM - Added functionality to generate g-h grid of geoms
 !----------------
 !This program uses surfgen evaluation library for construction and evaluation of
 !Hd, as well as geometry input. 
@@ -32,6 +33,10 @@ program testpoints
 
   logical :: printm, mweight ! print molden output, print molden as 
                              ! mass-weighted vectors
+  logical :: grid            ! if MEX, generate grid in g and h
+  integer :: ngpts           ! number of grid points along one direction
+                             ! total points will be ngpts**2
+  real*8 :: dsize            ! total displacement size
   integer :: printl          ! print level
   real*8,  dimension(:,:,:),allocatable :: hvec, svec, gvec !h/s/g vectors
   integer, dimension(:),    allocatable :: mex
@@ -46,7 +51,7 @@ program testpoints
   print *,""
   print *,"Checking for input file"
   allocate(mex(2))
-  call read_input_file(printm, mweight, printl, mex)
+  call read_input_file(printm, mweight, printl, mex, grid, ngpts, dsize)
   print *,""
   print *,"Initializing potential"
   call initPotential()
@@ -181,7 +186,11 @@ program testpoints
 !            call rot_g_h_vectors(gvec(:,mex(2),mex(1)),hvec(:,mex(2),mex(1)),&
 !                natoms) 
             call express_s_in_ghplane(gvec(:,mex(2),mex(1)), &
-                hvec(:,mex(2),mex(1)), svec(:,mex(2),mex(1)), natoms)
+                    hvec(:,mex(2),mex(1)), svec(:,mex(2),mex(1)), natoms)
+            if (grid) then
+                    call generate_grid_gh(cgeoms(:,i),gvec(:,mex(2),mex(1)),&
+                            hvec(:,mex(2),mex(1)),ngpts,natoms,dsize)
+            endif
     end if
   end do!i
 
@@ -190,6 +199,54 @@ program testpoints
   if(ptid/=0) print *,"Index of Closest Data Point : ", ptid
 
 contains
+  ! generate_grid_gh: generate grid of points in g and h
+  subroutine generate_grid_gh(geom, gv, hv, ndisps, na, dsize)
+    implicit none
+    integer, intent(in) :: na, ndisps
+    real*8 , intent(in) :: dsize
+    real*8, dimension(3*na), intent(in) :: geom, gv, hv
+    real*8, dimension(3*na) :: x, y, gdisp
+    real*8 :: gnrm, hnrm, dsz
+    integer :: flun = 31, ios
+    character(25) :: flname = "gh_disp.dat"
+    integer :: i, j
+    real*8, dimension(nstates) :: e
+    real*8, dimension(nstates,nstates) :: h
+    real*8, dimension(3*na,nstates,nstates) :: cg
+    real*8, dimension(3*na,nstates,nstates) :: dcg
+    real*8, external :: ddot
+    
+    gnrm = ddot(na*3,gv,1,gv,1)
+    hnrm = ddot(na*3,hv,1,hv,1)
+    x = gv / gnrm
+    y = hv / hnrm
+    dsz = dsize / ndisps
+    
+    open(unit=flun,file=trim(adjustl(flname)),status="replace", &
+            action="write",iostat=ios)
+    if (ios .ne. 0) stop "Error! Could not open gh_disp.dat!"
+
+    do i = 0 - ndisps, ndisps
+            do j = 0 - ndisps, ndisps
+                    gdisp = geom
+                    gdisp = gdisp + dsz * i * x
+                    gdisp = gdisp + dsz * j * y
+                    call EvaluateSurfgen(gdisp,e,cg,h,dcg)
+                    write(flun,"(f10.5,',',f10.5,',')",advance="no") &
+                            (dsz * i), (dsz * j)
+                    do k = 1, nstates
+                            write(flun,"(f20.15,',')",advance="no") e(k)
+                    end do
+                    write(flun,"")
+            end do
+    end do
+
+    close(unit=flun)
+    
+    
+    
+  end subroutine generate_grid_gh
+
   ! rot_g_h_vectors: rotate g and h vectors
   subroutine rot_g_h_vectors(g, h, na)
           implicit none
@@ -240,19 +297,23 @@ contains
   end subroutine express_s_in_ghplane
 
   ! read_input_file: reads input file for testpoints.x
-  subroutine read_input_file(printm, mweight, printl, mex)
+  subroutine read_input_file(printm, mweight, printl, mex, grid, ngpts, dsize)
           implicit none
-          logical, intent(out) :: printm, mweight
-          integer, intent(out) :: printl
+          logical, intent(out) :: printm, mweight, grid
+          integer, intent(out) :: printl, ngpts
+          real*8,  intent(out) :: dsize
           integer, dimension(2), intent(inout) :: mex
 
           character(25) :: flname = 'testpoints.in'
           integer       :: flunit = 21, ios
           integer, parameter :: fl_not_found = 29
 
-          namelist /testoutput/ printm, mweight, printl, mex
+          namelist /testoutput/ printm, mweight, printl, mex, grid, ngpts, dsize
           printm = .false.
           mweight= .false.
+          grid=.false.
+          ngpts=0
+          dsize = 0.01
           printl = 0
           mex(1) = 0
           mex(2) = 0
@@ -330,6 +391,7 @@ contains
           if (pl > 0) then
                   print "(a,2i2,a)", &
                           " g-vector for ", mex(1), mex(2)," intersection:"
+                  print "(a,f12.5)", "  ||g|| = ", ngv
                   print "(3f12.5)", gv(:,i,j)
           end if
           write(u,"(3f12.5)") gv(:,i,j)/ngv
@@ -338,6 +400,7 @@ contains
           if (pl > 0) then
                   print "(a,2i2,a)", &
                           " h-vector for ", mex(1), mex(2)," intersection:"
+                  print "(a,f12.5)", "  ||h|| = ", nhv
                   print "(3f12.5)", hv(:,i,j)
           end if
           write(u,"(3f12.5)") hv(:,i,j)/nhv

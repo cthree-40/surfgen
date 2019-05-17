@@ -74,7 +74,7 @@ main( int argc, char *argv[] )
   readinput( natoms, nrgeoms, refgeom );
   
   /* allocate distances array */
-  dist = malloc( (5 * 2) * sizeof( int ) );
+  dist = malloc( (4 * 2) * sizeof( int ) );
   dist[0] = 1;
   dist[1] = 2; /* O-H1  bond distance */
   dist[2] = 1;
@@ -83,12 +83,10 @@ main( int argc, char *argv[] )
   dist[5] = 4; /* O-H3 bond distance */
   dist[6] = 2;
   dist[7] = 3; /* H1-H2 bond distance */
-  dist[8] = 2; 
-  dist[9] = 4; /* H1-H3 bond distance */
   /* allocate first node of data aray */
   ptdata = malloc( sizeof( struct point ) );
-  /* 5 distances + 2 OOP angles */
-  ptdata->coord = malloc( (5 + 2) * sizeof( double ) );
+  /* 4 distances + 1 OOP angles */
+  ptdata->coord = malloc( (4 + 1) * sizeof( double ) );
   ptdata->next = 0;
   /* compute distances */
   computedist( dist, nrgeoms, refgeom, ptdata );
@@ -184,29 +182,24 @@ void computedist( int *dist, int nrgeoms, struct geometry *rgeoms,
     /* set index */
     currptd->index = indexp;
     /* compute each two atom distance */
-    for ( i = 0; i < 5; i++ ) {
+    for ( i = 0; i < 4; i++ ) {
       currptd->coord[i] = dist3d( &(currrgm->atom[dist[(i * 2)]-1]),
 				  &(currrgm->atom[dist[(i * 2) + 1 ]-1]));
     } /* i */
     /* compute OOP angles */
-    /* ( 5, 1, 2, 3 ) */
+    /* ( 4, 1, 2, 3 ) */
     currptd->coord[i] = oop3d( &(currrgm->atom[3]), &(currrgm->atom[0]),
 			       &(currrgm->atom[1]), &(currrgm->atom[2]));
-    i++;
-    /* ( 3, 1, 2, 4 ) */
-    currptd->coord[i] = oop3d( &(currrgm->atom[3]), &(currrgm->atom[0]),
-			       &(currrgm->atom[1]), &(currrgm->atom[2]));
-    
 #ifdef debugging
     /* print CO bond distances */
-    printf( " %d C-O distance: %lf \n", currptd->index, currptd->coord[0] );
+    printf( " %d O-H1 distance: %lf \n", currptd->index, currptd->coord[0] );
 #endif
 
     /* allocate new ptdata node */
     currptd->next  = malloc( sizeof( struct point ) );
     currptd = currptd->next;
-    /* 5 distances + 2 OOP angles */
-    currptd->coord = malloc( (5 + 2) * sizeof( double ) );
+    /* 4 distances + 1 OOP angles */
+    currptd->coord = malloc( (4 + 1) * sizeof( double ) );
     currptd->next = 0;
     /* move to new geometry */
     currrgm = currrgm->next;
@@ -369,10 +362,9 @@ void printoutput( int nrgeoms, struct point *data )
   /* start at first data point */
   currd = data;
   while ( currd->next != 0 ) {
-    fprintf( outputfl, "%lf, %lf, %lf, %lf, %lf, %lf, %lf \n",
+    fprintf( outputfl, "%lf, %lf, %lf, %lf, %lf, %lf\n",
 	     currd->coord[0], currd->coord[1], currd->coord[2],
-	     currd->coord[3], currd->coord[4], currd->coord[5],
-	     currd->coord[6] );
+	     currd->coord[3], currd->coord[4], currd->coord[5]);
     currd = currd->next;
   }
 

@@ -200,15 +200,18 @@ end subroutine calcHess
 
 !----search for minimum on adiabatic surfaces 
 subroutine findmin(natoms,nstate,cgeom,isurf,maxiter,shift,Etol,Stol,gscale,hess_disp,MAXD, &
-   masses, sadd_srch, converge_test, mol, anm)
+   masses, sadd_srch, converge_test, mol, anm, gprnt, anum)
   implicit none
   integer, intent(in)                                 ::  natoms,isurf,maxiter,nstate
   double precision,dimension(3*natoms),intent(inout)  ::  cgeom
   integer, intent(inout)                              :: converge_test
   double precision,intent(in)                         ::  shift,Etol,Stol, gscale, hess_disp
   double precision, intent(in)                        :: MAXD !Max displacement size
+  double precision, dimension(natoms), intent(in)     :: anum
   character(len=1),intent(in)                         :: sadd_srch
-  logical, intent(in)                                 :: mol
+  logical, intent(in)                                 :: mol, gprnt
+  character(len=25)                                   :: gflname, itstr
+  integer :: ios
   character*3, dimension(natoms), intent(in)          :: anm
   
   real*8    ::  h(nstate,nstate),cg(3*natoms,nstate,nstate),dcg(3*natoms,nstate,nstate),e(nstate)
@@ -218,7 +221,7 @@ subroutine findmin(natoms,nstate,cgeom,isurf,maxiter,shift,Etol,Stol,gscale,hess
   double precision,dimension(:),allocatable :: WORK
   integer,dimension(:),allocatable :: IWORK
   integer           :: LIWORK, LWORK, itmp(1),INFO  
-  integer  ::  iter  , i, eig_start
+  integer  ::  iter  , i, eig_start, j
   double precision            :: nrmG, nrmD, tmp(1)
   double precision, external  :: dnrm2
   double precision,  parameter  :: amu2au=1.822888484514D3,au2cm1=219474.6305d0
@@ -263,7 +266,7 @@ subroutine findmin(natoms,nstate,cgeom,isurf,maxiter,shift,Etol,Stol,gscale,hess
   print "(A,E10.2,A,E10.2)","  Energy Gradient: ",Etol,"   Displacement:",Stol
   do iter=1,maxiter
 
-      if (mol) then
+     if (mol) then
          write(88, "(i2,X,A)") natoms, "/coord"
          write(88, "(i2,X,A)") (iter-1), "/current iter"
          do i = 1, natoms
@@ -271,7 +274,21 @@ subroutine findmin(natoms,nstate,cgeom,isurf,maxiter,shift,Etol,Stol,gscale,hess
                      cgeom(i*3-1)*au2ang, cgeom(i*3)*au2ang
          end do
      end if
- 
+     if (gprnt) then
+         write(itstr,"(I4)") iter
+         gflname = "geom."//trim(adjustl(itstr))    
+         open(unit=89,file=gflname,status="unknown",action="write",iostat=ios)
+         if (ios.ne.0) then
+                 print *, "WARNING! Could not open intermediate geometry file."
+         else
+                 do j = 1, natoms
+                         write(89,"(A3,F7.2,4F14.8)") anm(j), anum(j), &
+                                 cgeom(j*3-2),cgeom(j*3-1),cgeom(j*3),masses(j)
+                 end do
+                 close(89)
+         end if
+      end if
+
      call EvaluateSurfgen(cgeom,e,cg,h,dcg)
      grad = cg(:,isurf,isurf)
      nrmG=dnrm2(3*natoms,grad,1)
@@ -399,11 +416,11 @@ program findcp
   double precision      :: egrad_tol, shift, disp_tol, grad_scale, hess_disp, maxdisp
   double precision      :: bndcutoff
   character*1           :: sadd_search
-  logical               :: check_inputfl, molden, ant_output
+  logical               :: check_inputfl, molden, ant_output, geomprint
   character*300         :: new_geomfl, old_geomfl
 ! Namelist input for inputfile
   namelist /cpsearch/   niter, egrad_tol, shift, disp_tol, grad_scale, hess_disp, &
-      maxdisp, sadd_search, printlvl, molden, ant_output
+      maxdisp, sadd_search, printlvl, molden, ant_output, geomprint
 ! If not read in, here are the default values:
   niter=100                         ! Max iterations
   egrad_tol=1d-9                    ! Energy gradient tolerance for convergence
@@ -418,6 +435,7 @@ program findcp
   new_geomfl="new.geom"             ! New geometry file
   printlvl=0                        ! Print level
   molden=.false.                    ! Generate molden output
+  geomprint=.false.                 ! Print geometries of intermediate points
   ant_output=.false.                ! Print final geometry in ANT format
   bndcutoff=4d0                     ! Threshold to report distance between atoms
   
@@ -496,7 +514,7 @@ program findcp
   print "(/,A)","----------- Geometry Optimizations ---------"
   converge_test=0
   call findmin(natm,nst,cgeom,isurf,niter,shift,egrad_tol ,disp_tol,grad_scale,hess_disp,&
-    maxdisp, masses, sadd_search, converge_test, molden, aname)
+    maxdisp, masses, sadd_search, converge_test, molden, aname, geomprint, anum)
   print "(/,A)","--------------- Final Geometry -------------"
   call analysegeom(natm,cgeom,aname,anum,masses,bndcutoff,.true.)
   print "(/,A)","------------ Harmonic Frequencies ----------"
