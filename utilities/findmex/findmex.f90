@@ -108,9 +108,10 @@ program findmex
       read(str,*,iostat=ios)isurf2
       if(ios/=0) stop "Cannot get surface number from command line options.  Using default."
     end if
-  end if
-  if(isurf1<1.or.isurf1>=isurf2.or.isurf2>nst)stop"Invalid state range. Correct usage: findmex.x gmfile s1 s2"
-
+ end if
+! test
+  if(isurf1<1.or.isurf1>isurf2.or.isurf2>nst)stop"Invalid state range. Correct usage: findmex.x gmfile s1 s2"
+  if(isurf1.eq.isurf2) print *, "ATTENTION: Single surface optimization."
   print *,"Reading input from input file "//trim(geomfile)
   call readColGeom(geomfile,1,natm,aname,anum,cgeom,masses)
  
@@ -471,6 +472,7 @@ subroutine updateLag(b,nvibs,nlag,lam,grad)
   integer::LWORK 
   double precision :: WORK(3*nlag*nlag+20)
   integer :: INFO,ipiv(nlag),i
+  if(nlag.eq.0)return
   LWORK=3*nlag*nlag+20
   !Bt.(g+B.deltaLam)=0
   !BtB.deltaLam=-Bt.g
