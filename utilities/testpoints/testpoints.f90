@@ -70,7 +70,7 @@ program testpoints
   call read_input_file_csvnml(nbond, bonds, nangle, angles, noop, oopang, &
           mexcalc, ezero, gname)
   if (nbond .ne. 0) csvout = .true.
-  print *,"csvout = .true."
+  if (csvout) print "(a)", " *.csv output to be printed."
   print *,""
   print *,"Initializing potential"
   call initPotential()
@@ -616,7 +616,11 @@ contains
     open(file = flname, unit = flunit, status = 'old', &
             action = 'read', iostat = ios)
     if (ios .eq. 0) then
-            read(unit = flunit, nml = csvoutput)
+            read(unit = flunit, nml = csvoutput, iostat = ios)
+            if (ios .lt. 0) then
+                    print "(a,i5)", "No input file found. ios = ", ios
+                    return
+            end if
     else
             print "(a,i5,a)", " ** Warning: ", ios, &
                     " occurred opening input file! **"
