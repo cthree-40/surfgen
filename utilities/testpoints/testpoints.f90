@@ -41,6 +41,18 @@ program testpoints
   real*8,  dimension(:,:,:),allocatable :: hvec, svec, gvec !h/s/g vectors
   integer, dimension(:),    allocatable :: mex
 
+  integer :: nbond, nangle, noop
+  integer, dimension(:,:), allocatable :: bonds, angles, oopang
+  integer, dimension(2) :: mexcalc
+  double precision :: ezero
+  character(255) :: gname
+  logical :: csvout
+
+  
+  double precision, dimension(10) :: bondval, angval, oopval
+  double precision, dimension(30) :: freqs
+  double precision, dimension(4)  :: mexinfo ! ||g||,||h||,sx,sy
+  
   print *,"-------------------------------------------------"
   print *,"Entering testpoints, a surfgen point testing utility"
   print *,""
@@ -51,13 +63,20 @@ program testpoints
   print *,""
   print *,"Checking for input file"
   allocate(mex(2))
-  call read_input_file(printm, mweight, printl, mex, grid, ngpts, dsize)
+  call read_input_file_outnml(printm, mweight, printl, mex, grid, ngpts, dsize)
+  allocate(bonds(2,10))
+  allocate(angles(3,10))
+  allocate(oopang(4,10))
+  call read_input_file_csvnml(nbond, bonds, nangle, angles, noop, oopang, &
+          mexcalc, ezero, gname)
+  if (nbond .ne. 0) csvout = .true.
+  print *,"csvout = .true."
   print *,""
   print *,"Initializing potential"
   call initPotential()
   call getinfo(natoms,nstates)
 
-! allocate arrays
+  ! allocate arrays
   allocate(atoms(natoms))
   allocate(anums(natoms))
   allocate(masses(natoms))
@@ -180,9 +199,9 @@ program testpoints
                 print *, "ALERT: mass-weighted g, h and s being used!"
             end if
             call rot_g_h_vectors(gvec(:,mex(2),mex(1)),hvec(:,mex(2),mex(1)),&
-                natoms) 
+                    natoms)
             call print_molden_output(gvec, hvec, svec, nstates, &
-                natoms, atoms, cgeoms(:,i), mex, printl)    
+                    natoms, atoms, cgeoms(:,i), mex, printl)    
 !            call rot_g_h_vectors(gvec(:,mex(2),mex(1)),hvec(:,mex(2),mex(1)),&
 !                natoms) 
             call express_s_in_ghplane(gvec(:,mex(2),mex(1)), &
@@ -191,6 +210,34 @@ program testpoints
                     call generate_grid_gh(cgeoms(:,i),gvec(:,mex(2),mex(1)),&
                             hvec(:,mex(2),mex(1)),ngpts,natoms,dsize)
             endif
+            print *, "G-vector: "
+            print "(3F13.8)", gvec(1:natoms*3,mex(2),mex(1))
+            print *, "H-vector: "
+            print "(3F13.8)", hvec(1:natoms*3,mex(2),mex(1))
+    end if
+    if (csvout) then
+            call compute_bond_distances(cgeoms(:,i), natoms, nbond, bonds,&
+                    bondval)
+            call compute_angle_values(cgeoms(:,i), natoms, nangle, angles, &
+                    angval)
+            call compute_oop_values(cgeoms(:,i), natoms, noop, oopang, oopval)
+
+            if (mexcalc(1) .eq. mexcalc(2) .and. mexcalc(1) .ne. 0) then
+                    ! Minimum or saddle point
+                    call compute_vibfreq(cgeoms(:,i), natoms, freqs, mexcalc(1),&
+                            nstates, masses)
+                    call print_minsad_csvout(nbond, bondval, nangle, angval, &
+                            noop, oopval, freqs, e, nstates, natoms, gname)
+            else
+                    ! MEX point
+                    call compute_mexinfo(cgeoms(:,i), natoms, &
+                            gvec(:,mexcalc(2),mexcalc(1)),    &
+                            hvec(:,mexcalc(2),mexcalc(1)),    &
+                            svec(:,mexcalc(2),mexcalc(1)), mexinfo)
+                    call print_mexinfo_csvout(nbond, bondval, nangle, angval,&
+                            noop, oopval, mexinfo, e, nstates, natoms, gname)
+            end if
+
     end if
   end do!i
 
@@ -199,6 +246,190 @@ program testpoints
   if(ptid/=0) print *,"Index of Closest Data Point : ", ptid
 
 contains
+  ! calcHess: calculate hessian at a certain geometry
+  subroutine calcHess(natoms,cgeom,nstate,istate,stepsize,hessian,centerd,skip)
+    implicit none
+    integer, intent(in)          :: natoms, nstate,istate
+    logical, intent(in),optional :: skip(natoms)
+    logical, intent(in)          :: centerd !whether to do centered difference or only backward difference    
+    double precision,intent(in)  :: stepsize
+    double precision,intent(in)  :: cgeom(3*natoms)
+    double precision,intent(out) :: hessian(3*natoms,3*natoms)
+    double precision   ::  mdif
+    
+    integer   ::   i,  j
+    logical   ::   skipdisp(natoms*3)
+    double precision  ::  dispgeom(3*natoms), dgrd(3*natoms),gref(3*natoms)
+    real*8    ::  h(nstate,nstate),cg(3*natoms,nstate,nstate),dcg(3*natoms,nstate,nstate),e(nstate)
+    skipdisp=.false.
+    if(present(skip))then
+            do i=1,natoms
+                    if(skip(i))skipdisp(i*3-2:i*3)=.true.
+            end do
+    end if
+    ! to perform backward difference, gradient at references is needed                                        
+    if(.not.centerd)then
+            call EvaluateSurfgen(cgeom,e,cg,h,dcg)
+            gref = cg(:,istate,istate)
+    end if
+    hessian = 0d0
+    do i=1,3*natoms
+            if(skipdisp(i))cycle
+            dispgeom=cgeom
+            dispgeom(i)=dispgeom(i) - stepsize
+            call EvaluateSurfgen(dispgeom,e,cg,h,dcg)
+            dgrd  =-cg(:,istate,istate)
+            if(centerd)then ! centered difference                                                                   
+                    dispgeom=cgeom
+                    dispgeom(i)=dispgeom(i) + stepsize
+                    call EvaluateSurfgen(dispgeom,e,cg,h,dcg)
+                    dgrd = dgrd+cg(:,istate,istate)
+                    hessian(i,:)= dgrd/2/stepsize
+            else !backward difference                                                                               
+                    dgrd = dgrd+gref
+                    hessian(i,:)= dgrd/stepsize
+            end if
+    end do!o=1,3*natoms                                                                                       
+    do i=1,3*natoms
+            if(skipdisp(i))hessian(:,i)=0d0
+    end do
+    mdif = maxval(abs(hessian-transpose(hessian)))
+    if(mdif>1d-5)print *,"maximum hermiticity breaking : ",mdif
+    hessian = (hessian+transpose(hessian))/2
+  end subroutine calcHess
+  
+  
+  ! compute_angle_values: compute the listed angle values for a
+  ! geometry.
+  ! geom = geometry
+  ! natm = number of atoms
+  ! na   = number of angles to compute
+  ! a    = atoms of angles (center is vertex)
+  ! aval = value of angles computed
+  subroutine compute_angle_values(geom, natm, na, a, aval)
+    implicit none
+    integer, intent(in) :: natm, na
+    integer, dimension(3,10), intent(in) :: a
+    double precision, dimension(3,natm), intent(in) :: geom
+    double precision, dimension(10), intent(inout) :: aval
+    double precision, external :: dnrm2
+    integer, dimension(3) :: aatm
+    double precision, dimension(3) :: d1, d2
+    integer :: i
+    aval = 0d0
+    do i = 1, na
+            aatm = a(1:3,i)
+            d1 = geom(:,aatm(1))-geom(:,aatm(2))
+            d1 = d1/dnrm2(3,d1,1)
+            d2 = geom(:,aatm(3))-geom(:,aatm(2))
+            d2 = d2/dnrm2(3,d2,1)
+            aval(i) = 90.0/acos(0d0)*acos(dot_product(d1,d2))
+    end do
+    return
+  end subroutine compute_angle_values
+  
+  ! compute_bond_distances: compute the listed bond distances for a
+  ! geometry.
+  ! geom = geometry
+  ! natm = number of atoms
+  ! nb   = number of bond distances
+  ! b    = bonds to measure
+  ! bval = value of bonds
+  subroutine compute_bond_distances(geom, natm, nb, b, bval)
+    implicit none
+    double precision, parameter  ::  bohr2ang=0.529177249d0
+    integer, intent(in) :: natm, nb
+    integer, dimension(2,10), intent(in) :: b
+    double precision, dimension(3,natm), intent(in) :: geom
+    double precision, dimension(10), intent(inout) :: bval
+    double precision, external :: dnrm2
+    integer :: i
+    bval = 0
+    do i = 1, nb
+            bval(i) = dnrm2(3, (geom(:,b(1,i))-geom(:,b(2,i))),1)
+            bval(i) = bval(i) * bohr2ang
+    end do
+    return
+  end subroutine compute_bond_distances
+
+  ! compute_mexinfo: compute information for a minimum energy crossing
+  subroutine compute_mexinfo(geom, natm, gvec, hvec, svec, mexinfo)
+    implicit none
+    integer, intent(in) :: natm
+    double precision, dimension(3,natm), intent(in) :: geom
+    double precision, dimension(3,natm), intent(inout) :: gvec, hvec, svec
+    double precision, dimension(4), intent(inout) :: mexinfo
+    double precision, dimension(3,natm) :: gx, hy
+    double precision, external :: ddot, dnrm2
+    call rot_g_h_vectors(gvec, hvec, natm)
+    gx = gvec / dnrm2(3*natm, gvec, 1)
+    hy = hvec / dnrm2(3*natm, hvec, 1)
+    mexinfo(1) = dnrm2(3*natm, gvec, 1)
+    mexinfo(2) = dnrm2(3*natm, hvec, 1)
+    mexinfo(3) = ddot(3*natm,svec,1,gx,1)
+    mexinfo(4) = ddot(3*natm,svec,1,hy,1)
+    return
+  end subroutine compute_mexinfo
+  
+  ! compute_oop_values: compute selected out-of-plane angle values
+  ! for a geometry
+  ! geom = geometry
+  ! natm = number of atoms
+  ! no   = number of OOP angles
+  ! o    = OOP angle to measure
+  ! oval = value of OOP angle
+  subroutine compute_oop_values(geom, natm, no, o, oval)
+    implicit none
+    integer, intent(in) :: natm, no
+    integer, dimension(2,10), intent(in) :: o
+    double precision, dimension(3,natm), intent(in) :: geom
+    double precision, dimension(10), intent(inout) :: oval
+    double precision, external :: dnrm2
+    integer :: i
+    integer, dimension(4) :: oatm
+    double precision, dimension(3) :: d1, d2, d3, p1, p3
+    oval = 0d0
+    do i = 1, no
+            oatm = o(1:4,i)
+            d1 = geom(:,oatm(1))-geom(:,oatm(2))
+            d1 = d1/dnrm2(3,d1,1)
+            d2 = geom(:,oatm(3))-geom(:,oatm(2))
+            d2 = d2/dnrm2(3,d2,1)
+            d3 = geom(:,oatm(4))-geom(:,oatm(3))
+            d3 = d3/dnrm2(3,d3,1)
+
+            p1 = d1-dot_product(d2,d1)*d2
+            p1 = p1/dnrm2(3,p1,1)
+            p3 = d3-dot_product(d2,d3)*d2
+            p3 = p3/dnrm2(3,p3,1)
+
+            oval(i) = 90/acos(0d0)*acos(dot_product(p1,p3))
+
+    end do
+    return
+  end subroutine compute_oop_values
+
+  ! compute_vibfreqs: compute vibrational frequencies for a minimum or
+  ! saddle point.
+  subroutine compute_vibfreq(geom, natm, freqs, istate, nstate, masses)
+    implicit none
+    integer, intent(in) :: natm, istate, nstate
+    double precision, dimension(3,natm), intent(in) :: geom
+    double precision, dimension(natm),   intent(in) :: masses
+    double precision, dimension(30),  intent(inout) :: freqs
+
+    double precision, dimension(3*natm,3*natm)  :: hessian
+    double precision, parameter :: stepsize = 1.0d-5
+    logical, parameter :: centerd = .true.
+    logical, dimension(3*natm) :: skip
+    skip = .false.
+    
+    call calcHess(natm,geom,nstate,istate,stepsize,hessian,centerd,skip)
+    call getFreq(natm,masses,hessian,freqs,geom)
+    
+    return
+  end subroutine compute_vibfreq
+  
   ! generate_grid_gh: generate grid of points in g and h
   subroutine generate_grid_gh(geom, gv, hv, ndisps, na, dsize)
     implicit none
@@ -247,33 +478,82 @@ contains
     
   end subroutine generate_grid_gh
 
+  ! getFreq: get harmonic frequencies from hessian matrix
+  subroutine getFreq(natoms,masses,hess,w,cg)
+    implicit none
+    integer,intent(in)          :: natoms
+    double precision,intent(in) :: masses(natoms),hess(3*natoms,3*natoms)
+    double precision,intent(in) :: cg(3*natoms)
+    
+    double precision,intent(out):: w(3*natoms)
+    
+    double precision,  parameter  :: amu2au=1.822888484514D3,au2cm1=219474.6305d0
+    integer  :: i,j
+    double precision  :: sqrm,  hmw(3*natoms,3*natoms), tmp(1)
+    double precision,dimension(:),allocatable :: WORK
+    integer,dimension(:),allocatable :: IWORK
+    integer           :: LIWORK, LWORK, itmp(1),INFO
+    ! convert hessian into mass weighed coordinates                                             
+    hmw = hess/amu2au
+    do i=1,natoms
+            sqrm = sqrt(masses(i))
+            do j=i*3-2,i*3
+                    hmw(j,:)=hmw(j,:)/sqrm
+                    hmw(:,j)=hmw(:,j)/sqrm
+            end do
+    end do
+    !calculate eigenvalues of hmw                                                               
+    call DSYEVD('V','U',3*natoms,hmw,3*natoms,w,tmp,-1,itmp,-1,INFO)
+    if(info/=0)print *,"DSYEVD allocation investigation failed.  info=",info
+    LWORK = int(tmp(1))
+    LIWORK= itmp(1)
+    allocate(WORK(LWORK))
+    allocate(IWORK(LIWORK))
+    
+    ! if print level is greater than 0 we want to print the modes.                              
+    call DSYEVD('N','U',3*natoms,hmw,3*natoms,w,WORK,LWORK,IWORK,LIWORK,INFO)
+    if(info/=0)print *,"DSYEVD failed.  info=",info
+    
+    
+    
+    do i=1,3*natoms
+            if(w(i)<0)then
+                    w(i) = -sqrt(-w(i))*au2cm1
+            else
+                    w(i) = sqrt(w(i))*au2cm1
+            end if
+    end do
+    
+    return
+  end subroutine getFreq
+
   ! rot_g_h_vectors: rotate g and h vectors
   subroutine rot_g_h_vectors(g, h, na)
-          implicit none
-          integer,intent(in) :: na
-          real*8, dimension(3*na), intent(inout) :: g, h
-          real*8, dimension(3*na) :: tmp1, tmp2
-          real*8 :: gh, hh, gg, atin, theta
-          real*8, external :: ddot
-
-          gh = ddot(na*3,g,1,h,1)
-          hh = ddot(na*3,h,1,h,1)
-          gg = ddot(na*3,g,1,g,1)
-          atin = (2 * gh) / (hh - gg)
-          theta= datan(atin) / 4.0
-
-          tmp1 = g
-          tmp2 = h
-          print "(A,f13.5)"," g.h = ", gh
-          print "(A,f8.3)"," Rotating by ", theta
-          g = dcos(2 * theta) * tmp1 - dsin(2 * theta) * tmp2
-          h = dsin(2 * theta) * tmp1 + dcos(2 * theta) * tmp2
-          gh = ddot(na*3,g,1,h,1)
-          print "(A,f13.5)"," g.h = ", gh
-          
-          return
+    implicit none
+    integer,intent(in) :: na
+    real*8, dimension(3*na), intent(inout) :: g, h
+    real*8, dimension(3*na) :: tmp1, tmp2
+    real*8 :: gh, hh, gg, atin, theta
+    real*8, external :: ddot
+    
+    gh = ddot(na*3,g,1,h,1)
+    hh = ddot(na*3,h,1,h,1)
+    gg = ddot(na*3,g,1,g,1)
+    atin = (2 * gh) / (hh - gg)
+    theta= datan(atin) / 4.0
+    
+    tmp1 = g
+    tmp2 = h
+    print "(A,f13.5)"," g.h = ", gh
+    print "(A,f8.3)"," Rotating by ", theta
+    g = dcos(2 * theta) * tmp1 - dsin(2 * theta) * tmp2
+    h = dsin(2 * theta) * tmp1 + dcos(2 * theta) * tmp2
+    gh = ddot(na*3,g,1,h,1)
+    print "(A,f13.5)"," g.h = ", gh
+    
+    return
   end subroutine rot_g_h_vectors
-
+  
   ! express_s_in_ghplane: gives components of s in g/h plane.
   subroutine express_s_in_ghplane(g, h, s, na)
           implicit none
@@ -296,8 +576,61 @@ contains
           return
   end subroutine express_s_in_ghplane
 
-  ! read_input_file: reads input file for testpoints.x
-  subroutine read_input_file(printm, mweight, printl, mex, grid, ngpts, dsize)
+  ! read_input_file_csvnml: reads input file (testpoints.in) csvoutput
+  ! namelist for testpoints.x
+  ! nbond (bonds) = number of bonds (bonds)
+  ! nangle (angles) = number of angles (angles)
+  ! noop (oopang) = number of out of plane angles (oop angles)
+  ! mexcalc = states that form mex
+  ! ezero = shift to energy output
+  ! gname = name for geometry
+  subroutine read_input_file_csvnml(nbond, bonds, nangle, angles, noop, &
+          oopang, mexcalc, ezero, gname)
+    implicit none
+    integer, intent(out) :: nbond, nangle, noop
+    integer, dimension(2,10), intent(inout) :: bonds
+    integer, dimension(3,10), intent(inout) :: angles
+    integer, dimension(4,10), intent(inout) :: oopang
+    integer, dimension(2),    intent(inout) :: mexcalc
+    double precision, intent(out) :: ezero
+    character(255), intent(out) :: gname
+    
+    character(25) :: flname = 'testpoints.in'
+    integer       :: flunit = 21, ios
+    integer, parameter :: fl_not_found = 29
+    
+    namelist /csvoutput/ nbond, bonds, nangle, angles, noop, oopang, &
+            mexcalc, ezero, gname
+    ! Defaults
+    mexcalc = 0
+    ezero   = 0d0
+    oopang  = 0
+    noop    = 0
+    angles  = 0
+    nangle  = 0
+    bonds   = 0
+    nbond   = 0
+    gname   = ""
+
+    ! Open input file. If not found return, doing nothing.
+    open(file = flname, unit = flunit, status = 'old', &
+            action = 'read', iostat = ios)
+    if (ios .eq. 0) then
+            read(unit = flunit, nml = csvoutput)
+    else
+            print "(a,i5,a)", " ** Warning: ", ios, &
+                    " occurred opening input file! **"
+            return
+    end if
+    print *, "Input file found. Reading csvoutput namelist."
+    return
+    
+  end subroutine read_input_file_csvnml
+  
+  ! read_input_file: reads input file (testpoints.in) testoutput namelist
+  !  for testpoints.x
+  subroutine read_input_file_outnml(printm, mweight, printl, mex, grid, &
+          ngpts, dsize)
           implicit none
           logical, intent(out) :: printm, mweight, grid
           integer, intent(out) :: printl, ngpts
@@ -326,14 +659,122 @@ contains
                   read(unit = flunit, nml = testoutput)
                   return
           else
-                  print "(a,i5,a)", "  **Error ", ios, &
-                          " occurred opening input file!**"
+                  print "(a,i5,a)", "  ** Warning ", ios, &
+                          " occurred opening input file! **"
                   return
           end if
           print *, "Input file found."    
           return
-  end subroutine read_input_file
+  end subroutine read_input_file_outnml
 
+  ! print csv output for minimum/saddle point 
+  ! Input:
+  !  nb   = number of bonds
+  !  na   = number of angles
+  !  no   = number of out of plane angles
+  !  nst  = number of states
+  !  natm = number of atoms
+  !  nm   = file name
+  subroutine print_minsad_csvout(nb, bv, na, av, no, ov, w, e, nst, natm, nm)
+    implicit none
+    integer, intent(in) :: nb, na, no, nst, natm
+    double precision, dimension(10),  intent(in) :: bv, av, ov
+    double precision, dimension(30),  intent(in) :: w
+    double precision, dimension(nst), intent(in) :: e
+    character(255), intent(in) :: nm
+    character(255), parameter  :: flname = "geomdata.csv"
+    integer, parameter :: flunit = 25
+    double precision, parameter :: au2cm1=219474.6305d0
+    integer :: ios
+    integer :: i, f
+
+    open(file="geomdata.csv",unit=flunit,status="unknown",&
+            action="write",position="append",iostat=ios)
+    if (ios .ne. 0) return
+    ! Geom name
+    write(unit=flunit,fmt=10,advance="no") trim(adjustl(nm))
+    ! Bond values
+    do i = 1, nb
+            write(unit=flunit,fmt=11,advance="no") bv(i)
+    end do
+    ! Angle values
+    do i = 1, na
+            write(unit=flunit,fmt=12,advance="no") av(i)
+    end do
+    ! OOp values
+    do i = 1, no
+            write(unit=flunit,fmt=12,advance="no") ov(i)
+    end do
+    ! Frequencies
+    f=1
+    do i = 30, 1, -1
+            if (abs(w(i)) .gt. 10d0) then
+                    write(unit=flunit,fmt=13,advance="no") w(i)
+                    f=f+1
+            end if
+    end do
+    do i = f, 3*natm-6
+            write(unit=flunit,fmt="('',',')",advance="no")
+    end do
+    do i = 1, nst
+            write(unit=flunit,fmt=14,advance="no") (e(i) * au2cm1) - ezero
+    end do
+    close(unit=flunit)
+    return
+10  format(1x,A,',')  ! Name
+11  format(f10.4,',') ! Bonds
+12  format(f10.3,',') ! Angles
+13  format(f10.1,',') ! Frequencies
+14  format(f10.1,',') ! Energies
+  end subroutine print_minsad_csvout
+
+  ! print_mexinfo_csvout: print mex information in csv format
+  subroutine print_mexinfo_csvout(nb, bv, na, av, no, ov, mi, e, nst, natm, nm)
+    implicit none
+    integer, intent(in) :: nb, na, no, nst, natm
+    double precision, dimension(10), intent(in) :: bv, av, ov
+    double precision, dimension(4),  intent(in) :: mi
+    double precision, dimension(nst),intent(in) :: e
+    character(255), intent(in) :: nm
+    character(255), parameter  :: flname = "geomdata.csv"
+    integer, parameter :: flunit = 25
+    double precision, parameter :: au2cm1=219474.6305d0
+    integer :: ios
+    integer :: i
+
+    open(file="geomdata.csv",unit=flunit,status="unknown",&
+            action="write",position="append",iostat=ios)
+    if (ios .ne. 0) return
+    ! Geom name
+    write(unit=flunit,fmt=10,advance="no") trim(adjustl(nm))
+    ! Bond values
+    do i = 1, nb
+            write(unit=flunit,fmt=11,advance="no") bv(i)
+    end do
+    ! Angle values
+    do i = 1, na
+            write(unit=flunit,fmt=12,advance="no") av(i)
+    end do
+    ! OOp values
+    do i = 1, no
+            write(unit=flunit,fmt=12,advance="no") ov(i)
+    end do
+    ! mexinfo
+    do i = 1, 4
+            write(unit=flunit,fmt=13,advance="no") mi(i)
+    end do
+    do i = 1, nst
+            write(unit=flunit,fmt=14,advance="no") (e(i) * au2cm1) - ezero
+    end do
+    close(unit=flunit)
+    return
+10  format(1x,A,',')  ! Name
+11  format(f10.4,',') ! Bonds
+12  format(f10.3,',') ! Angles
+13  format(f10.6,',') ! g, h, sx, sy
+14  format(f10.1,',') ! Energies
+  end subroutine print_mexinfo_csvout
+  
   ! print_molden_output: print g/h/s vectors in molden format
   subroutine print_molden_output(gv, hv, sv, ns, na, a, g, mex, pl)
           implicit none
