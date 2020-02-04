@@ -227,7 +227,8 @@ program testpoints
                     call compute_vibfreq(cgeoms(:,i), natoms, freqs, mexcalc(1),&
                             nstates, masses)
                     call print_minsad_csvout(nbond, bondval, nangle, angval, &
-                            noop, oopval, freqs, e, nstates, natoms, gname)
+                            noop, oopval, freqs, e, nstates, natoms, gname,  &
+                            ezero)
             else
                     ! MEX point
                     call compute_mexinfo(cgeoms(:,i), natoms, &
@@ -235,7 +236,8 @@ program testpoints
                             hvec(:,mexcalc(2),mexcalc(1)),    &
                             svec(:,mexcalc(2),mexcalc(1)), mexinfo)
                     call print_mexinfo_csvout(nbond, bondval, nangle, angval,&
-                            noop, oopval, mexinfo, e, nstates, natoms, gname)
+                            noop, oopval, mexinfo, e, nstates, natoms, gname,&
+                            ezero)
             end if
 
     end if
@@ -679,12 +681,14 @@ contains
   !  nst  = number of states
   !  natm = number of atoms
   !  nm   = file name
-  subroutine print_minsad_csvout(nb, bv, na, av, no, ov, w, e, nst, natm, nm)
+  subroutine print_minsad_csvout(nb, bv, na, av, no, ov, w, e, nst, natm,&
+          nm, ez)
     implicit none
     integer, intent(in) :: nb, na, no, nst, natm
     double precision, dimension(10),  intent(in) :: bv, av, ov
     double precision, dimension(30),  intent(in) :: w
     double precision, dimension(nst), intent(in) :: e
+    double precision, intent(in) :: ez
     character(255), intent(in) :: nm
     character(255), parameter  :: flname = "geomdata.csv"
     integer, parameter :: flunit = 25
@@ -701,14 +705,17 @@ contains
     do i = 1, nb
             write(unit=flunit,fmt=11,advance="no") bv(i)
     end do
+    write(unit=flunit,fmt="('',',')",advance="no")
     ! Angle values
     do i = 1, na
             write(unit=flunit,fmt=12,advance="no") av(i)
     end do
+    write(unit=flunit,fmt="('',',')",advance="no")
     ! OOp values
     do i = 1, no
             write(unit=flunit,fmt=12,advance="no") ov(i)
     end do
+    write(unit=flunit,fmt="('',',')",advance="no")
     ! Frequencies
     f=1
     do i = 30, 1, -1
@@ -720,8 +727,10 @@ contains
     do i = f, 3*natm-6
             write(unit=flunit,fmt="('',',')",advance="no")
     end do
+    write(unit=flunit,fmt="('',',')",advance="no")
+    ! Energies
     do i = 1, nst
-            write(unit=flunit,fmt=14,advance="no") (e(i) * au2cm1) - ezero
+            write(unit=flunit,fmt=14,advance="no") (e(i) * au2cm1) - ez
     end do
     close(unit=flunit)
     return
@@ -733,12 +742,14 @@ contains
   end subroutine print_minsad_csvout
 
   ! print_mexinfo_csvout: print mex information in csv format
-  subroutine print_mexinfo_csvout(nb, bv, na, av, no, ov, mi, e, nst, natm, nm)
+  subroutine print_mexinfo_csvout(nb, bv, na, av, no, ov, mi, e, nst, natm,&
+          nm, ez)
     implicit none
     integer, intent(in) :: nb, na, no, nst, natm
     double precision, dimension(10), intent(in) :: bv, av, ov
     double precision, dimension(4),  intent(in) :: mi
     double precision, dimension(nst),intent(in) :: e
+    double precision, intent(in) :: ez
     character(255), intent(in) :: nm
     character(255), parameter  :: flname = "geomdata.csv"
     integer, parameter :: flunit = 25
@@ -755,20 +766,25 @@ contains
     do i = 1, nb
             write(unit=flunit,fmt=11,advance="no") bv(i)
     end do
+    write(unit=flunit,fmt="('',',')",advance="no")
     ! Angle values
     do i = 1, na
             write(unit=flunit,fmt=12,advance="no") av(i)
     end do
+    write(unit=flunit,fmt="('',',')",advance="no")
     ! OOp values
     do i = 1, no
             write(unit=flunit,fmt=12,advance="no") ov(i)
     end do
+    write(unit=flunit,fmt="('',',')",advance="no")
     ! mexinfo
     do i = 1, 4
             write(unit=flunit,fmt=13,advance="no") mi(i)
     end do
+    write(unit=flunit,fmt="('',',')",advance="no")
+    ! Energies
     do i = 1, nst
-            write(unit=flunit,fmt=14,advance="no") (e(i) * au2cm1) - ezero
+            write(unit=flunit,fmt=14,advance="no") (e(i) * au2cm1) - ez
     end do
     close(unit=flunit)
     return
