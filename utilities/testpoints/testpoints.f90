@@ -33,6 +33,7 @@ program testpoints
 
   logical :: printm, mweight ! print molden output, print molden as 
                              ! mass-weighted vectors
+  logical :: nnout           ! print input for nn initial guess
   logical :: grid            ! if MEX, generate grid in g and h
   integer :: ngpts           ! number of grid points along one direction
                              ! total points will be ngpts**2
@@ -63,7 +64,8 @@ program testpoints
   print *,""
   print *,"Checking for input file"
   allocate(mex(2))
-  call read_input_file_outnml(printm, mweight, printl, mex, grid, ngpts, dsize)
+  call read_input_file_outnml(printm, mweight, printl, mex, grid, &
+          ngpts, dsize, nnout)
   allocate(bonds(2,10))
   allocate(angles(3,10))
   allocate(oopang(4,10))
@@ -117,6 +119,17 @@ program testpoints
     do j=1,nstates
       print "(2x,10F24.15)",h(j,:)
     end do
+
+    if (nnout) then
+      write(*,"('>Hd:  ')",advance="no")
+      do j = 1, nstates
+        do k = j, nstates
+          write(*,"(E20.10)",advance="no") h(j,k)
+        end do
+      end do
+      write(*,"('')")
+    endif
+
     print *,"Diabatic energy(cm-1)"
     print "(2x,10F24.15)",(h(j,j)*219474.6305d0,j=1,nstates)
     print *,""
@@ -636,9 +649,9 @@ contains
   ! read_input_file: reads input file (testpoints.in) testoutput namelist
   !  for testpoints.x
   subroutine read_input_file_outnml(printm, mweight, printl, mex, grid, &
-          ngpts, dsize)
+          ngpts, dsize, nnout)
           implicit none
-          logical, intent(out) :: printm, mweight, grid
+          logical, intent(out) :: printm, mweight, grid, nnout
           integer, intent(out) :: printl, ngpts
           real*8,  intent(out) :: dsize
           integer, dimension(2), intent(inout) :: mex
@@ -647,10 +660,12 @@ contains
           integer       :: flunit = 21, ios
           integer, parameter :: fl_not_found = 29
 
-          namelist /testoutput/ printm, mweight, printl, mex, grid, ngpts, dsize
+          namelist /testoutput/ printm, mweight, printl, mex, grid, ngpts, &
+                  dsize, nnout
           printm = .false.
           mweight= .false.
           grid=.false.
+          nnout=.false.
           ngpts=0
           dsize = 0.01
           printl = 0
