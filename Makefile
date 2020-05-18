@@ -13,10 +13,10 @@ OBJSf   = hddata.o diis.o rdleclse.o combinatorial.o progdata.o libutil.o \
 
 # Objects needed for runtime interface library
 OBJSLf  = hddata.o combinatorial.o progdata.o libutil.o libsym.o libinternal.o \
-            io.o potlib.o
+            io.o xy3.o potlib.o
 # Objects for shared-library
 OBJSLSO = hddata.f90 combinatorial.f90 progdata.f90 libutil.f90 libsym.f90 \
-	  libinternal.f90 io.f90 potlib.f90 getver.F90
+	  libinternal.f90 io.f90 xy3.f90 potlib.f90 getver.F90
 
 # Objects needed for test programs 
 OBJTf   =  hddata.o diis.o rdleclse.o combinatorial.o progdata.o libutil.o \
