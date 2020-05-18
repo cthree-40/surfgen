@@ -1,0 +1,1744 @@
+
+    Report from: Interprocedural optimizations [ipo]
+
+  WHOLE PROGRAM (SAFE) [EITHER METHOD]: false
+  WHOLE PROGRAM (SEEN) [TABLE METHOD]: false
+  WHOLE PROGRAM (READ) [OBJECT READER METHOD]: false
+
+INLINING OPTION VALUES:
+  -inline-factor: 100
+  -inline-min-size: 30
+  -inline-max-size: 230
+  -inline-max-total-size: 2000
+  -inline-max-per-routine: 10000
+  -inline-max-per-compile: 500000
+
+In the inlining report below:
+   "sz" refers to the "size" of the routine. The smaller a routine's size,
+      the more likely it is to be inlined.
+   "isz" refers to the "inlined size" of the routine. This is the amount
+      the calling routine will grow if the called routine is inlined into it.
+      The compiler generally limits the amount a routine can grow by having
+      routines inlined into it.
+
+Begin optimization report for: GETFREQ
+
+    Report from: Interprocedural optimizations [ipo]
+
+INLINE REPORT: (GETFREQ) [1/9=11.1%] findcp.f90(24,12)
+  -> EXTERN: (24,12) _alloca
+  -> EXTERN: (24,12) __getsp_inlined
+  -> EXTERN: (49,8) dsyevd_
+  -> EXTERN: (50,14) for_write_seq_lis
+  -> EXTERN: (50,14) for_write_seq_lis_xmit
+  -> EXTERN: (53,3) for_alloc_allocatable
+  -> EXTERN: (53,3) for_check_mult_overflow64
+  -> EXTERN: (54,3) for_alloc_allocatable
+  -> EXTERN: (54,3) for_check_mult_overflow64
+  -> EXTERN: (58,14) dsyevd_
+  -> EXTERN: (60,14) dsyevd_
+  -> EXTERN: (62,14) for_write_seq_lis
+  -> EXTERN: (62,14) for_write_seq_lis_xmit
+  -> EXTERN: (76,9) for_write_seq_lis
+  -> EXTERN: (78,17) for_write_seq_fmt_xmit
+  -> EXTERN: (78,17) for_write_seq_fmt
+  -> EXTERN: (80,25) for_write_seq_fmt_xmit
+  -> EXTERN: (80,25) for_write_seq_fmt_xmit
+  -> EXTERN: (80,25) for_write_seq_fmt
+  -> INLINE: (90,16) OPTTOOLS::GEN_MOLDEN_FILE (isz = 428) (sz = 443)
+    -> EXTERN: (109,9) for_write_int_fmt
+    -> EXTERN: (110,9) for_cpystr
+    -> EXTERN: (110,12) for_trim
+    -> EXTERN: (112,9) for_open
+    -> EXTERN: (114,17) for_write_seq_fmt
+    -> EXTERN: (119,9) for_write_seq_fmt
+    -> EXTERN: (120,9) for_write_seq_fmt
+    -> EXTERN: (122,9) for_write_seq_fmt
+    -> EXTERN: (124,17) for_write_seq_fmt
+    -> EXTERN: (127,9) for_write_seq_fmt
+    -> EXTERN: (129,17) for_write_seq_fmt_xmit
+    -> EXTERN: (129,17) for_write_seq_fmt_xmit
+    -> EXTERN: (129,17) for_write_seq_fmt_xmit
+    -> EXTERN: (129,17) for_write_seq_fmt
+    -> EXTERN: (129,44) for_trim
+    -> EXTERN: (133,9) for_write_seq_fmt
+    -> EXTERN: (135,17) for_write_seq_fmt
+    -> EXTERN: (137,25) for_write_seq_fmt
+    -> EXTERN: (137,25) for_write_seq_fmt_xmit
+    -> EXTERN: (137,25) for_write_seq_fmt_xmit
+    -> EXTERN: (142,9) for_write_seq_fmt
+  -> EXTERN: (93,1) __resetsp_inlined
+  -> EXTERN: (93,1) for_dealloc_allocatable
+  -> EXTERN: (93,1) for_dealloc_allocatable
+
+
+    Report from: Loop nest, Vector & Auto-parallelization optimizations [loop, vec, par]
+
+
+LOOP BEGIN at findcp.f90(40,3)
+   remark #17108: loop was not parallelized: insufficient computational work
+   remark #15542: loop was not vectorized: inner loop was already vectorized
+
+   LOOP BEGIN at findcp.f90(40,3)
+   <Peeled>
+   LOOP END
+
+   LOOP BEGIN at findcp.f90(40,3)
+      remark #17108: loop was not parallelized: insufficient computational work
+      remark #15388: vectorization support: reference hmw has aligned access
+      remark #15389: vectorization support: reference hess has unaligned access
+      remark #15381: vectorization support: unaligned access used inside loop body
+      remark #15399: vectorization support: unroll factor set to 4
+      remark #15300: LOOP WAS VECTORIZED
+      remark #15449: unmasked aligned unit stride stores: 1 
+      remark #15450: unmasked unaligned unit stride loads: 1 
+      remark #15475: --- begin vector loop cost summary ---
+      remark #15476: scalar loop cost: 6 
+      remark #15477: vector loop cost: 11.000 
+      remark #15478: estimated potential speedup: 2.050 
+      remark #15479: lightweight vector operations: 4 
+      remark #15480: medium-overhead vector operations: 1 
+      remark #15488: --- end vector loop cost summary ---
+   LOOP END
+
+   LOOP BEGIN at findcp.f90(40,3)
+   <Remainder>
+      remark #15388: vectorization support: reference hmw has aligned access
+      remark #15389: vectorization support: reference hess has unaligned access
+      remark #15381: vectorization support: unaligned access used inside loop body
+      remark #15301: REMAINDER LOOP WAS VECTORIZED
+   LOOP END
+
+   LOOP BEGIN at findcp.f90(40,3)
+   <Remainder>
+   LOOP END
+LOOP END
+
+LOOP BEGIN at findcp.f90(41,3)
+   remark #25096: Loop Interchange not done due to: Imperfect Loop Nest (Either at Source or due to other Compiler Transformations)
+   remark #25451: Advice: Loop Interchange, if possible, might help loopnest. Suggested Permutation: ( 1 2 ) --> ( 2 1 ) 
+   remark #17104: loop was not parallelized: existence of parallel dependence
+   remark #17106: parallel dependence: assumed OUTPUT dependence between hmw line 44 and hmw line 45
+   remark #17106: parallel dependence: assumed OUTPUT dependence between hmw line 45 and hmw line 44
+   remark #15542: loop was not vectorized: inner loop was already vectorized
+
+   LOOP BEGIN at findcp.f90(43,5)
+      remark #17104: loop was not parallelized: existence of parallel dependence
+      remark #17106: parallel dependence: assumed OUTPUT dependence between hmw line 44 and hmw line 45
+      remark #17106: parallel dependence: assumed OUTPUT dependence between hmw line 45 and hmw line 44
+      remark #15542: loop was not vectorized: inner loop was already vectorized
+      remark #25015: Estimate of max trip count of loop=3
+
+      LOOP BEGIN at findcp.f90(44,7)
+         remark #17108: loop was not parallelized: insufficient computational work
+         remark #15399: vectorization support: unroll factor set to 4
+         remark #15300: LOOP WAS VECTORIZED
+         remark #15460: masked strided loads: 1 
+         remark #15462: unmasked indexed (or gather) loads: 1 
+         remark #15475: --- begin vector loop cost summary ---
+         remark #15476: scalar loop cost: 33 
+         remark #15477: vector loop cost: 18.000 
+         remark #15478: estimated potential speedup: 6.730 
+         remark #15479: lightweight vector operations: 3 
+         remark #15480: medium-overhead vector operations: 1 
+         remark #15481: heavy-overhead vector operations: 1 
+         remark #15488: --- end vector loop cost summary ---
+      LOOP END
+
+      LOOP BEGIN at findcp.f90(44,7)
+      <Remainder>
+         remark #15301: REMAINDER LOOP WAS VECTORIZED
+      LOOP END
+
+      LOOP BEGIN at findcp.f90(44,7)
+      <Remainder>
+      LOOP END
+
+      LOOP BEGIN at findcp.f90(45,7)
+      <Peeled>
+      LOOP END
+
+      LOOP BEGIN at findcp.f90(45,7)
+         remark #17108: loop was not parallelized: insufficient computational work
+         remark #15388: vectorization support: reference hmw has aligned access
+         remark #15388: vectorization support: reference hmw has aligned access
+         remark #15399: vectorization support: unroll factor set to 4
+         remark #15300: LOOP WAS VECTORIZED
+         remark #15448: unmasked aligned unit stride loads: 1 
+         remark #15449: unmasked aligned unit stride stores: 1 
+         remark #15475: --- begin vector loop cost summary ---
+         remark #15476: scalar loop cost: 33 
+         remark #15477: vector loop cost: 5.000 
+         remark #15478: estimated potential speedup: 12.870 
+         remark #15479: lightweight vector operations: 5 
+         remark #15488: --- end vector loop cost summary ---
+      LOOP END
+
+      LOOP BEGIN at findcp.f90(45,7)
+      <Remainder>
+         remark #15388: vectorization support: reference hmw has aligned access
+         remark #15388: vectorization support: reference hmw has aligned access
+         remark #15301: REMAINDER LOOP WAS VECTORIZED
+      LOOP END
+
+      LOOP BEGIN at findcp.f90(45,7)
+      <Remainder>
+      LOOP END
+   LOOP END
+LOOP END
+
+LOOP BEGIN at findcp.f90(66,3)
+<Peeled>
+LOOP END
+
+LOOP BEGIN at findcp.f90(66,3)
+   remark #17108: loop was not parallelized: insufficient computational work
+   remark #15388: vectorization support: reference w has aligned access   [ findcp.f90(67,12) ]
+   remark #15388: vectorization support: reference w has aligned access   [ findcp.f90(68,7) ]
+   remark #15300: LOOP WAS VECTORIZED
+   remark #15442: entire loop may be executed in remainder
+   remark #15448: unmasked aligned unit stride loads: 1 
+   remark #15449: unmasked aligned unit stride stores: 1 
+   remark #15475: --- begin vector loop cost summary ---
+   remark #15476: scalar loop cost: 84 
+   remark #15477: vector loop cost: 21.250 
+   remark #15478: estimated potential speedup: 3.790 
+   remark #15479: lightweight vector operations: 21 
+   remark #15488: --- end vector loop cost summary ---
+LOOP END
+
+LOOP BEGIN at findcp.f90(66,3)
+<Remainder>
+LOOP END
+
+LOOP BEGIN at findcp.f90(77,9)
+   remark #17104: loop was not parallelized: existence of parallel dependence
+   remark #17106: parallel dependence: assumed OUTPUT dependence between 145 line 78 and 145 line 80
+   remark #17106: parallel dependence: assumed OUTPUT dependence between 145 line 80 and 145 line 78
+   remark #15382: vectorization support: call to function for_write_seq_fmt cannot be vectorized   [ findcp.f90(78,17) ]
+   remark #15382: vectorization support: call to function for_write_seq_fmt_xmit cannot be vectorized   [ findcp.f90(78,17) ]
+   remark #15382: vectorization support: call to function for_write_seq_fmt cannot be vectorized   [ findcp.f90(80,25) ]
+   remark #15382: vectorization support: call to function for_write_seq_fmt_xmit cannot be vectorized   [ findcp.f90(80,25) ]
+   remark #15382: vectorization support: call to function for_write_seq_fmt_xmit cannot be vectorized   [ findcp.f90(80,25) ]
+   remark #15344: loop was not vectorized: vector dependence prevents vectorization
+   remark #15346: vector dependence: assumed OUTPUT dependence between 145 line 78 and 145 line 80
+   remark #15346: vector dependence: assumed OUTPUT dependence between 145 line 80 and 145 line 78
+
+   LOOP BEGIN at findcp.f90(79,17)
+      remark #17104: loop was not parallelized: existence of parallel dependence
+      remark #17106: parallel dependence: assumed OUTPUT dependence between 145 line 80 and 145 line 80
+      remark #17106: parallel dependence: assumed OUTPUT dependence between 145 line 80 and 145 line 80
+      remark #15382: vectorization support: call to function for_write_seq_fmt cannot be vectorized   [ findcp.f90(80,25) ]
+      remark #15382: vectorization support: call to function for_write_seq_fmt_xmit cannot be vectorized   [ findcp.f90(80,25) ]
+      remark #15382: vectorization support: call to function for_write_seq_fmt_xmit cannot be vectorized   [ findcp.f90(80,25) ]
+      remark #15344: loop was not vectorized: vector dependence prevents vectorization
+      remark #15346: vector dependence: assumed OUTPUT dependence between 145 line 80 and 145 line 80
+      remark #15346: vector dependence: assumed OUTPUT dependence between 145 line 80 and 145 line 80
+   LOOP END
+LOOP END
+
+LOOP BEGIN at findcp.f90(123,9) inlined into findcp.f90(90,16)
+   remark #17104: loop was not parallelized: existence of parallel dependence
+   remark #17106: parallel dependence: assumed OUTPUT dependence between 309 line 124 and 309 line 124
+   remark #17106: parallel dependence: assumed OUTPUT dependence between 309 line 124 and 309 line 124
+   remark #15382: vectorization support: call to function for_write_seq_fmt cannot be vectorized   [ findcp.f90(124,17) ]
+   remark #15344: loop was not vectorized: vector dependence prevents vectorization
+   remark #15346: vector dependence: assumed OUTPUT dependence between 309 line 124 and 309 line 124
+   remark #15346: vector dependence: assumed OUTPUT dependence between 309 line 124 and 309 line 124
+LOOP END
+
+LOOP BEGIN at findcp.f90(128,9) inlined into findcp.f90(90,16)
+   remark #17104: loop was not parallelized: existence of parallel dependence
+   remark #17106: parallel dependence: assumed FLOW dependence between 433 line 129 and 433 line 129
+   remark #17106: parallel dependence: assumed ANTI dependence between 433 line 129 and 433 line 129
+   remark #15382: vectorization support: call to function for_trim cannot be vectorized   [ findcp.f90(129,44) ]
+   remark #15382: vectorization support: call to function for_write_seq_fmt cannot be vectorized   [ findcp.f90(129,17) ]
+   remark #15382: vectorization support: call to function for_write_seq_fmt_xmit cannot be vectorized   [ findcp.f90(129,17) ]
+   remark #15382: vectorization support: call to function for_write_seq_fmt_xmit cannot be vectorized   [ findcp.f90(129,17) ]
+   remark #15382: vectorization support: call to function for_write_seq_fmt_xmit cannot be vectorized   [ findcp.f90(129,17) ]
+   remark #15344: loop was not vectorized: vector dependence prevents vectorization
+   remark #15346: vector dependence: assumed FLOW dependence between 433 line 129 and 433 line 129
+   remark #15346: vector dependence: assumed ANTI dependence between 433 line 129 and 433 line 129
+LOOP END
+
+LOOP BEGIN at findcp.f90(134,9) inlined into findcp.f90(90,16)
+   remark #17104: loop was not parallelized: existence of parallel dependence
+   remark #17106: parallel dependence: assumed OUTPUT dependence between 309 line 135 and 309 line 137
+   remark #17106: parallel dependence: assumed OUTPUT dependence between 309 line 137 and 309 line 135
+   remark #15382: vectorization support: call to function for_write_seq_fmt cannot be vectorized   [ findcp.f90(135,17) ]
+   remark #15382: vectorization support: call to function for_write_seq_fmt cannot be vectorized   [ findcp.f90(137,25) ]
+   remark #15382: vectorization support: call to function for_write_seq_fmt_xmit cannot be vectorized   [ findcp.f90(137,25) ]
+   remark #15382: vectorization support: call to function for_write_seq_fmt_xmit cannot be vectorized   [ findcp.f90(137,25) ]
+   remark #15344: loop was not vectorized: vector dependence prevents vectorization
+   remark #15346: vector dependence: assumed OUTPUT dependence between 309 line 135 and 309 line 137
+   remark #15346: vector dependence: assumed OUTPUT dependence between 309 line 137 and 309 line 135
+
+   LOOP BEGIN at findcp.f90(136,17) inlined into findcp.f90(90,16)
+      remark #17104: loop was not parallelized: existence of parallel dependence
+      remark #17106: parallel dependence: assumed OUTPUT dependence between 309 line 137 and 309 line 137
+      remark #17106: parallel dependence: assumed OUTPUT dependence between 309 line 137 and 309 line 137
+      remark #15382: vectorization support: call to function for_write_seq_fmt cannot be vectorized   [ findcp.f90(137,25) ]
+      remark #15382: vectorization support: call to function for_write_seq_fmt_xmit cannot be vectorized   [ findcp.f90(137,25) ]
+      remark #15382: vectorization support: call to function for_write_seq_fmt_xmit cannot be vectorized   [ findcp.f90(137,25) ]
+      remark #15344: loop was not vectorized: vector dependence prevents vectorization
+      remark #15346: vector dependence: assumed OUTPUT dependence between 309 line 137 and 309 line 137
+      remark #15346: vector dependence: assumed OUTPUT dependence between 309 line 137 and 309 line 137
+   LOOP END
+LOOP END
+
+    Report from: Code generation optimizations [cg]
+
+findcp.f90(37,39):remark #34000: call to memcpy implemented inline with loads and stores with proven source (alignment, offset): (32, 0), and destination (alignment, offset): (16, 0)
+findcp.f90(36,48):remark #34000: call to memcpy implemented inline with loads and stores with proven source (alignment, offset): (32, 0), and destination (alignment, offset): (16, 0)
+===========================================================================
+
+Begin optimization report for: CALCHESS
+
+    Report from: Interprocedural optimizations [ipo]
+
+INLINE REPORT: (CALCHESS) [2/9=22.2%] findcp.f90(146,12)
+  -> EXTERN: (146,12) _alloca
+  -> EXTERN: (146,12) _alloca
+  -> EXTERN: (146,12) _alloca
+  -> EXTERN: (146,12) _alloca
+  -> EXTERN: (146,12) _alloca
+  -> EXTERN: (146,12) _alloca
+  -> EXTERN: (146,12) _alloca
+  -> EXTERN: (146,12) _alloca
+  -> EXTERN: (146,12) __getsp_inlined
+  -> EXTERN: (168,10) evaluatesurfgen_
+  -> EXTERN: (176,10) evaluatesurfgen_
+  -> EXTERN: (181,12) evaluatesurfgen_
+  -> EXTERN: (193,16) for_write_seq_lis
+  -> EXTERN: (193,16) for_write_seq_lis_xmit
+  -> EXTERN: (194,3) __resetsp_inlined
+  -> EXTERN: (194,3) _alloca
+  -> EXTERN: (194,3) __getsp_inlined
+  -> EXTERN: (195,1) __resetsp_inlined
+
+
+    Report from: Loop nest, Vector & Auto-parallelization optimizations [loop, vec, par]
+
+
+LOOP BEGIN at findcp.f90(160,3)
+   remark #25408: memset generated
+   remark #17104: loop was not parallelized: existence of parallel dependence
+   remark #17106: parallel dependence: assumed OUTPUT dependence between skipdisp line 160 and skipdisp line 160
+   remark #17106: parallel dependence: assumed OUTPUT dependence between skipdisp line 160 and skipdisp line 160
+   remark #15542: loop was not vectorized: inner loop was already vectorized
+
+   LOOP BEGIN at findcp.f90(160,3)
+      remark #17108: loop was not parallelized: insufficient computational work
+      remark #15388: vectorization support: reference skipdisp has aligned access
+      remark #15300: LOOP WAS VECTORIZED
+      remark #15449: unmasked aligned unit stride stores: 1 
+      remark #15475: --- begin vector loop cost summary ---
+      remark #15476: scalar loop cost: 2 
+      remark #15477: vector loop cost: 1.500 
+      remark #15478: estimated potential speedup: 1.330 
+      remark #15479: lightweight vector operations: 2 
+      remark #15480: medium-overhead vector operations: 1 
+      remark #15488: --- end vector loop cost summary ---
+      remark #25015: Estimate of max trip count of loop=6
+   LOOP END
+
+   LOOP BEGIN at findcp.f90(160,3)
+   <Remainder>
+      remark #25015: Estimate of max trip count of loop=12
+   LOOP END
+LOOP END
+
+LOOP BEGIN at findcp.f90(162,5)
+   remark #17104: loop was not parallelized: existence of parallel dependence
+   remark #17106: parallel dependence: assumed OUTPUT dependence between skipdisp line 163 and skipdisp line 163
+   remark #17106: parallel dependence: assumed OUTPUT dependence between skipdisp line 163 and skipdisp line 163
+   remark #15344: loop was not vectorized: vector dependence prevents vectorization
+   remark #15346: vector dependence: assumed OUTPUT dependence between skipdisp line 163 and skipdisp line 163
+   remark #15346: vector dependence: assumed OUTPUT dependence between skipdisp line 163 and skipdisp line 163
+
+   LOOP BEGIN at findcp.f90(163,18)
+      remark #17108: loop was not parallelized: insufficient computational work
+      remark #15389: vectorization support: reference skipdisp has unaligned access
+      remark #15381: vectorization support: unaligned access used inside loop body
+      remark #15335: loop was not vectorized: vectorization possible but seems inefficient. Use vector always directive or -vec-threshold0 to override 
+      remark #15451: unmasked unaligned unit stride stores: 1 
+      remark #15475: --- begin vector loop cost summary ---
+      remark #15476: scalar loop cost: 2 
+      remark #15477: vector loop cost: 2.500 
+      remark #15478: estimated potential speedup: 0.600 
+      remark #15479: lightweight vector operations: 2 
+      remark #15481: heavy-overhead vector operations: 1 
+      remark #15488: --- end vector loop cost summary ---
+      remark #25436: completely unrolled by 3  
+   LOOP END
+LOOP END
+
+LOOP BEGIN at findcp.f90(169,5)
+   remark #25401: memcopy(with guard) generated
+   remark #17104: loop was not parallelized: existence of parallel dependence
+   remark #17106: parallel dependence: assumed ANTI dependence between gref line 169 and gref line 169
+   remark #17106: parallel dependence: assumed FLOW dependence between gref line 169 and gref line 169
+   remark #15542: loop was not vectorized: inner loop was already vectorized
+
+   LOOP BEGIN at findcp.f90(169,5)
+   <Multiversioned v2>
+      remark #17108: loop was not parallelized: insufficient computational work
+      remark #15388: vectorization support: reference gref has aligned access
+      remark #15389: vectorization support: reference cg has unaligned access
+      remark #15381: vectorization support: unaligned access used inside loop body
+      remark #15300: LOOP WAS VECTORIZED
+      remark #15449: unmasked aligned unit stride stores: 1 
+      remark #15450: unmasked unaligned unit stride loads: 1 
+      remark #15475: --- begin vector loop cost summary ---
+      remark #15476: scalar loop cost: 4 
+      remark #15477: vector loop cost: 1.250 
+      remark #15478: estimated potential speedup: 3.170 
+      remark #15479: lightweight vector operations: 3 
+      remark #15488: --- end vector loop cost summary ---
+   LOOP END
+
+   LOOP BEGIN at findcp.f90(169,5)
+   <Remainder, Multiversioned v2>
+   LOOP END
+LOOP END
+
+LOOP BEGIN at findcp.f90(171,3)
+   remark #17108: loop was not parallelized: insufficient computational work
+   remark #15542: loop was not vectorized: inner loop was already vectorized
+
+   LOOP BEGIN at findcp.f90(171,3)
+      remark #25408: memset generated
+      remark #17104: loop was not parallelized: existence of parallel dependence
+      remark #17106: parallel dependence: assumed OUTPUT dependence between hessian line 171 and hessian line 171
+      remark #17106: parallel dependence: assumed OUTPUT dependence between hessian line 171 and hessian line 171
+      remark #15542: loop was not vectorized: inner loop was already vectorized
+      remark #25015: Estimate of max trip count of loop=1
+
+      LOOP BEGIN at findcp.f90(171,3)
+      <Peeled>
+         remark #25015: Estimate of max trip count of loop=12
+      LOOP END
+
+      LOOP BEGIN at findcp.f90(171,3)
+         remark #17108: loop was not parallelized: insufficient computational work
+         remark #15388: vectorization support: reference hessian has aligned access
+         remark #15399: vectorization support: unroll factor set to 2
+         remark #15300: LOOP WAS VECTORIZED
+         remark #15442: entire loop may be executed in remainder
+         remark #15449: unmasked aligned unit stride stores: 1 
+         remark #15475: --- begin vector loop cost summary ---
+         remark #15476: scalar loop cost: 4 
+         remark #15477: vector loop cost: 1.500 
+         remark #15478: estimated potential speedup: 1.500 
+         remark #15479: lightweight vector operations: 3 
+         remark #15488: --- end vector loop cost summary ---
+         remark #25015: Estimate of max trip count of loop=1
+      LOOP END
+
+      LOOP BEGIN at findcp.f90(171,3)
+      <Remainder>
+         remark #25015: Estimate of max trip count of loop=12
+      LOOP END
+   LOOP END
+LOOP END
+
+LOOP BEGIN at findcp.f90(172,3)
+   remark #17104: loop was not parallelized: existence of parallel dependence
+   remark #17106: parallel dependence: assumed ANTI dependence between dispgeom line 174 and dispgeom line 180
+   remark #17106: parallel dependence: assumed FLOW dependence between dispgeom line 180 and dispgeom line 174
+   remark #15542: loop was not vectorized: inner loop was already vectorized
+
+   LOOP BEGIN at findcp.f90(174,5)
+      remark #25401: memcopy(with guard) generated
+      remark #17104: loop was not parallelized: existence of parallel dependence
+      remark #17106: parallel dependence: assumed ANTI dependence between dispgeom line 174 and dispgeom line 174
+      remark #17106: parallel dependence: assumed FLOW dependence between dispgeom line 174 and dispgeom line 174
+      remark #15542: loop was not vectorized: inner loop was already vectorized
+      remark #25015: Estimate of max trip count of loop=1
+
+      LOOP BEGIN at findcp.f90(174,5)
+      <Multiversioned v2>
+         remark #17108: loop was not parallelized: insufficient computational work
+         remark #15388: vectorization support: reference dispgeom has aligned access
+         remark #15389: vectorization support: reference cgeom has unaligned access
+         remark #15381: vectorization support: unaligned access used inside loop body
+         remark #15300: LOOP WAS VECTORIZED
+         remark #15449: unmasked aligned unit stride stores: 1 
+         remark #15450: unmasked unaligned unit stride loads: 1 
+         remark #15475: --- begin vector loop cost summary ---
+         remark #15476: scalar loop cost: 4 
+         remark #15477: vector loop cost: 2.250 
+         remark #15478: estimated potential speedup: 1.760 
+         remark #15479: lightweight vector operations: 2 
+         remark #15480: medium-overhead vector operations: 1 
+         remark #15488: --- end vector loop cost summary ---
+      LOOP END
+
+      LOOP BEGIN at findcp.f90(174,5)
+      <Remainder, Multiversioned v2>
+      LOOP END
+   LOOP END
+
+   LOOP BEGIN at findcp.f90(177,5)
+      remark #17108: loop was not parallelized: insufficient computational work
+      remark #15388: vectorization support: reference dgrd has aligned access
+      remark #15389: vectorization support: reference cg has unaligned access
+      remark #15381: vectorization support: unaligned access used inside loop body
+      remark #15399: vectorization support: unroll factor set to 4
+      remark #15300: LOOP WAS VECTORIZED
+      remark #15449: unmasked aligned unit stride stores: 1 
+      remark #15450: unmasked unaligned unit stride loads: 1 
+      remark #15475: --- begin vector loop cost summary ---
+      remark #15476: scalar loop cost: 5 
+      remark #15477: vector loop cost: 6.000 
+      remark #15478: estimated potential speedup: 3.030 
+      remark #15479: lightweight vector operations: 4 
+      remark #15488: --- end vector loop cost summary ---
+   LOOP END
+
+   LOOP BEGIN at findcp.f90(177,5)
+   <Remainder>
+      remark #15388: vectorization support: reference dgrd has aligned access
+      remark #15389: vectorization support: reference cg has unaligned access
+      remark #15381: vectorization support: unaligned access used inside loop body
+      remark #15301: REMAINDER LOOP WAS VECTORIZED
+   LOOP END
+
+   LOOP BEGIN at findcp.f90(177,5)
+   <Remainder>
+   LOOP END
+
+   LOOP BEGIN at findcp.f90(179,7)
+      remark #25401: memcopy(with guard) generated
+      remark #17104: loop was not parallelized: existence of parallel dependence
+      remark #17106: parallel dependence: assumed ANTI dependence between dispgeom line 179 and dispgeom line 179
+      remark #17106: parallel dependence: assumed FLOW dependence between dispgeom line 179 and dispgeom line 179
+      remark #15542: loop was not vectorized: inner loop was already vectorized
+      remark #25015: Estimate of max trip count of loop=1
+
+      LOOP BEGIN at findcp.f90(179,7)
+      <Multiversioned v2>
+         remark #17108: loop was not parallelized: insufficient computational work
+         remark #15388: vectorization support: reference dispgeom has aligned access
+         remark #15389: vectorization support: reference cgeom has unaligned access
+         remark #15381: vectorization support: unaligned access used inside loop body
+         remark #15300: LOOP WAS VECTORIZED
+         remark #15449: unmasked aligned unit stride stores: 1 
+         remark #15450: unmasked unaligned unit stride loads: 1 
+         remark #15475: --- begin vector loop cost summary ---
+         remark #15476: scalar loop cost: 4 
+         remark #15477: vector loop cost: 2.250 
+         remark #15478: estimated potential speedup: 1.760 
+         remark #15479: lightweight vector operations: 2 
+         remark #15480: medium-overhead vector operations: 1 
+         remark #15488: --- end vector loop cost summary ---
+      LOOP END
+
+      LOOP BEGIN at findcp.f90(179,7)
+      <Remainder, Multiversioned v2>
+      LOOP END
+   LOOP END
+
+   LOOP BEGIN at findcp.f90(182,7)
+      remark #25045: Fused Loops: ( 182 183 )
+
+      remark #17108: loop was not parallelized: insufficient computational work
+      remark #15388: vectorization support: reference dgrd has aligned access
+      remark #15388: vectorization support: reference dgrd has aligned access
+      remark #15389: vectorization support: reference cg has unaligned access
+      remark #15388: vectorization support: reference dgrd has aligned access   [ findcp.f90(183,7) ]
+      remark #15381: vectorization support: unaligned access used inside loop body
+      remark #15399: vectorization support: unroll factor set to 4
+      remark #15301: FUSED LOOP WAS VECTORIZED
+      remark #15448: unmasked aligned unit stride loads: 1 
+      remark #15449: unmasked aligned unit stride stores: 1 
+      remark #15450: unmasked unaligned unit stride loads: 1 
+      remark #15462: unmasked indexed (or gather) loads: 1 
+      remark #15475: --- begin vector loop cost summary ---
+      remark #15476: scalar loop cost: 41 
+      remark #15477: vector loop cost: 10.250 
+      remark #15478: estimated potential speedup: 6.210 
+      remark #15479: lightweight vector operations: 10 
+      remark #15488: --- end vector loop cost summary ---
+   LOOP END
+
+   LOOP BEGIN at findcp.f90(183,7)
+   LOOP END
+
+   LOOP BEGIN at findcp.f90(182,7)
+   <Remainder>
+      remark #15388: vectorization support: reference dgrd has aligned access
+      remark #15388: vectorization support: reference dgrd has aligned access
+      remark #15389: vectorization support: reference cg has unaligned access
+      remark #15388: vectorization support: reference dgrd has aligned access   [ findcp.f90(183,7) ]
+      remark #15381: vectorization support: unaligned access used inside loop body
+      remark #15301: REMAINDER LOOP WAS VECTORIZED
+   LOOP END
+
+   LOOP BEGIN at findcp.f90(182,7)
+   <Remainder>
+   LOOP END
+
+   LOOP BEGIN at findcp.f90(185,7)
+      remark #25045: Fused Loops: ( 185 186 )
+
+      remark #17108: loop was not parallelized: insufficient computational work
+      remark #15388: vectorization support: reference dgrd has aligned access
+      remark #15388: vectorization support: reference dgrd has aligned access
+      remark #15388: vectorization support: reference gref has aligned access
+      remark #15388: vectorization support: reference dgrd has aligned access   [ findcp.f90(186,7) ]
+      remark #15399: vectorization support: unroll factor set to 4
+      remark #15301: FUSED LOOP WAS VECTORIZED
+      remark #15448: unmasked aligned unit stride loads: 2 
+      remark #15449: unmasked aligned unit stride stores: 1 
+      remark #15462: unmasked indexed (or gather) loads: 1 
+      remark #15475: --- begin vector loop cost summary ---
+      remark #15476: scalar loop cost: 39 
+      remark #15477: vector loop cost: 9.250 
+      remark #15478: estimated potential speedup: 6.460 
+      remark #15479: lightweight vector operations: 10 
+      remark #15488: --- end vector loop cost summary ---
+   LOOP END
+
+   LOOP BEGIN at findcp.f90(186,7)
+   LOOP END
+
+   LOOP BEGIN at findcp.f90(185,7)
+   <Remainder>
+      remark #15388: vectorization support: reference dgrd has aligned access
+      remark #15388: vectorization support: reference dgrd has aligned access
+      remark #15388: vectorization support: reference gref has aligned access
+      remark #15388: vectorization support: reference dgrd has aligned access   [ findcp.f90(186,7) ]
+      remark #15301: REMAINDER LOOP WAS VECTORIZED
+   LOOP END
+
+   LOOP BEGIN at findcp.f90(185,7)
+   <Remainder>
+   LOOP END
+LOOP END
+
+LOOP BEGIN at findcp.f90(189,3)
+   remark #17108: loop was not parallelized: insufficient computational work
+   remark #15542: loop was not vectorized: inner loop was already vectorized
+
+   LOOP BEGIN at findcp.f90(190,20)
+      remark #25408: memset generated
+      remark #17104: loop was not parallelized: existence of parallel dependence
+      remark #17106: parallel dependence: assumed OUTPUT dependence between hessian line 190 and hessian line 190
+      remark #17106: parallel dependence: assumed OUTPUT dependence between hessian line 190 and hessian line 190
+      remark #15542: loop was not vectorized: inner loop was already vectorized
+      remark #25015: Estimate of max trip count of loop=1
+
+      LOOP BEGIN at findcp.f90(190,20)
+      <Peeled>
+         remark #25015: Estimate of max trip count of loop=12
+      LOOP END
+
+      LOOP BEGIN at findcp.f90(190,20)
+         remark #17108: loop was not parallelized: insufficient computational work
+         remark #15388: vectorization support: reference hessian has aligned access
+         remark #15399: vectorization support: unroll factor set to 2
+         remark #15300: LOOP WAS VECTORIZED
+         remark #15442: entire loop may be executed in remainder
+         remark #15449: unmasked aligned unit stride stores: 1 
+         remark #15475: --- begin vector loop cost summary ---
+         remark #15476: scalar loop cost: 4 
+         remark #15477: vector loop cost: 1.500 
+         remark #15478: estimated potential speedup: 1.500 
+         remark #15479: lightweight vector operations: 3 
+         remark #15488: --- end vector loop cost summary ---
+         remark #25015: Estimate of max trip count of loop=1
+      LOOP END
+
+      LOOP BEGIN at findcp.f90(190,20)
+      <Remainder>
+         remark #25015: Estimate of max trip count of loop=12
+      LOOP END
+   LOOP END
+LOOP END
+
+LOOP BEGIN at findcp.f90(192,10)
+   remark #25101: Loop Interchange not done due to: Original Order seems proper
+   remark #25452: Original Order found to be proper, but by a close margin
+   remark #17109: LOOP WAS AUTO-PARALLELIZED
+   remark #17101: parallel loop shared={ .2.24_2upper_.67 } private={ } firstprivate={ 480 561 hessian 587 } lastprivate={ } firstlastprivate={ 593 } reduction={ 589 }
+   remark #15542: loop was not vectorized: inner loop was already vectorized
+
+   LOOP BEGIN at findcp.f90(192,10)
+   <Peeled, Distributed chunk1>
+   LOOP END
+
+   LOOP BEGIN at findcp.f90(192,10)
+   <Distributed chunk1>
+      remark #25426: Loop Distributed (2 way) 
+      remark #15388: vectorization support: reference hessian has aligned access
+      remark #15399: vectorization support: unroll factor set to 4
+      remark #15301: PARTIAL LOOP WAS VECTORIZED
+      remark #15442: entire loop may be executed in remainder
+      remark #15448: unmasked aligned unit stride loads: 1 
+      remark #15460: masked strided loads: 1 
+      remark #15475: --- begin vector loop cost summary ---
+      remark #15476: scalar loop cost: 15 
+      remark #15477: vector loop cost: 15.000 
+      remark #15478: estimated potential speedup: 3.450 
+      remark #15479: lightweight vector operations: 7 
+      remark #15480: medium-overhead vector operations: 1 
+      remark #15488: --- end vector loop cost summary ---
+   LOOP END
+
+   LOOP BEGIN at findcp.f90(192,10)
+   <Remainder, Distributed chunk1>
+      remark #15388: vectorization support: reference hessian has aligned access
+      remark #15301: REMAINDER LOOP WAS VECTORIZED
+   LOOP END
+
+   LOOP BEGIN at findcp.f90(192,10)
+   <Remainder, Distributed chunk1>
+   LOOP END
+
+   LOOP BEGIN at findcp.f90(192,10)
+   <Distributed chunk2>
+      remark #15335: loop was not vectorized: vectorization possible but seems inefficient. Use vector always directive or -vec-threshold0 to override 
+      remark #15475: --- begin vector loop cost summary ---
+      remark #15477: vector loop cost: 0.750 
+      remark #15479: lightweight vector operations: 3 
+      remark #15488: --- end vector loop cost summary ---
+   LOOP END
+LOOP END
+
+LOOP BEGIN at findcp.f90(194,3)
+   remark #17108: loop was not parallelized: insufficient computational work
+   remark #15542: loop was not vectorized: inner loop was already vectorized
+
+   LOOP BEGIN at findcp.f90(194,3)
+   <Peeled>
+   LOOP END
+
+   LOOP BEGIN at findcp.f90(194,3)
+      remark #17108: loop was not parallelized: insufficient computational work
+      remark #15388: vectorization support: reference 606 has aligned access
+      remark #15389: vectorization support: reference hessian has unaligned access
+      remark #15381: vectorization support: unaligned access used inside loop body
+      remark #15399: vectorization support: unroll factor set to 4
+      remark #15300: LOOP WAS VECTORIZED
+      remark #15449: unmasked aligned unit stride stores: 1 
+      remark #15450: unmasked unaligned unit stride loads: 1 
+      remark #15460: masked strided loads: 1 
+      remark #15475: --- begin vector loop cost summary ---
+      remark #15476: scalar loop cost: 9 
+      remark #15477: vector loop cost: 20.000 
+      remark #15478: estimated potential speedup: 1.720 
+      remark #15479: lightweight vector operations: 5 
+      remark #15480: medium-overhead vector operations: 2 
+      remark #15488: --- end vector loop cost summary ---
+   LOOP END
+
+   LOOP BEGIN at findcp.f90(194,3)
+   <Remainder>
+      remark #15388: vectorization support: reference 606 has aligned access
+      remark #15389: vectorization support: reference hessian has unaligned access
+      remark #15381: vectorization support: unaligned access used inside loop body
+      remark #15301: REMAINDER LOOP WAS VECTORIZED
+   LOOP END
+
+   LOOP BEGIN at findcp.f90(194,3)
+   <Remainder>
+   LOOP END
+LOOP END
+
+LOOP BEGIN at findcp.f90(194,3)
+   remark #17104: loop was not parallelized: existence of parallel dependence
+   remark #17106: parallel dependence: assumed ANTI dependence between hessian line 194 and hessian line 194
+   remark #17106: parallel dependence: assumed FLOW dependence between hessian line 194 and hessian line 194
+   remark #15542: loop was not vectorized: inner loop was already vectorized
+
+   LOOP BEGIN at findcp.f90(194,3)
+      remark #25401: memcopy(with guard) generated
+      remark #17104: loop was not parallelized: existence of parallel dependence
+      remark #17106: parallel dependence: assumed ANTI dependence between hessian line 194 and hessian line 194
+      remark #17106: parallel dependence: assumed FLOW dependence between hessian line 194 and hessian line 194
+      remark #15542: loop was not vectorized: inner loop was already vectorized
+      remark #25015: Estimate of max trip count of loop=1
+
+      LOOP BEGIN at findcp.f90(194,3)
+      <Peeled, Multiversioned v2>
+      LOOP END
+
+      LOOP BEGIN at findcp.f90(194,3)
+      <Multiversioned v2>
+         remark #17108: loop was not parallelized: insufficient computational work
+         remark #15388: vectorization support: reference hessian has aligned access
+         remark #15389: vectorization support: reference 606 has unaligned access
+         remark #15381: vectorization support: unaligned access used inside loop body
+         remark #15300: LOOP WAS VECTORIZED
+         remark #15442: entire loop may be executed in remainder
+         remark #15449: unmasked aligned unit stride stores: 1 
+         remark #15450: unmasked unaligned unit stride loads: 1 
+         remark #15475: --- begin vector loop cost summary ---
+         remark #15476: scalar loop cost: 4 
+         remark #15477: vector loop cost: 1.250 
+         remark #15478: estimated potential speedup: 3.000 
+         remark #15479: lightweight vector operations: 3 
+         remark #15488: --- end vector loop cost summary ---
+      LOOP END
+
+      LOOP BEGIN at findcp.f90(194,3)
+      <Remainder, Multiversioned v2>
+      LOOP END
+   LOOP END
+LOOP END
+
+LOOP BEGIN at findcp.f90(192,10)
+   remark #15542: loop was not vectorized: inner loop was already vectorized
+
+   LOOP BEGIN at findcp.f90(192,10)
+   <Peeled, Distributed chunk1>
+   LOOP END
+
+   LOOP BEGIN at findcp.f90(192,10)
+   <Distributed chunk1>
+      remark #17107: loop was not parallelized: inner loop
+      remark #25426: Loop Distributed (2 way) 
+      remark #15388: vectorization support: reference hessian has aligned access
+      remark #15399: vectorization support: unroll factor set to 4
+      remark #15301: PARTIAL LOOP WAS VECTORIZED
+      remark #15442: entire loop may be executed in remainder
+      remark #15448: unmasked aligned unit stride loads: 1 
+      remark #15460: masked strided loads: 1 
+      remark #15475: --- begin vector loop cost summary ---
+      remark #15476: scalar loop cost: 15 
+      remark #15477: vector loop cost: 15.000 
+      remark #15478: estimated potential speedup: 3.450 
+      remark #15479: lightweight vector operations: 7 
+      remark #15480: medium-overhead vector operations: 1 
+      remark #15488: --- end vector loop cost summary ---
+   LOOP END
+
+   LOOP BEGIN at findcp.f90(192,10)
+   <Remainder, Distributed chunk1>
+      remark #15388: vectorization support: reference hessian has aligned access
+      remark #15301: REMAINDER LOOP WAS VECTORIZED
+   LOOP END
+
+   LOOP BEGIN at findcp.f90(192,10)
+   <Remainder, Distributed chunk1>
+   LOOP END
+
+   LOOP BEGIN at findcp.f90(192,10)
+   <Distributed chunk2>
+      remark #15335: loop was not vectorized: vectorization possible but seems inefficient. Use vector always directive or -vec-threshold0 to override 
+      remark #15475: --- begin vector loop cost summary ---
+      remark #15477: vector loop cost: 0.750 
+      remark #15479: lightweight vector operations: 3 
+      remark #15488: --- end vector loop cost summary ---
+   LOOP END
+LOOP END
+
+    Report from: Code generation optimizations [cg]
+
+findcp.f90(160,3):remark #34014: optimization advice for memset: increase the destination's alignment to 16 (and use __assume_aligned) to speed up library implementation
+findcp.f90(160,3):remark #34026: call to memset implemented as a call to optimized library version
+findcp.f90(169,5):remark #34014: optimization advice for memcpy: increase the destination's alignment to 16 (and use __assume_aligned) to speed up library implementation
+findcp.f90(169,5):remark #34014: optimization advice for memcpy: increase the source's alignment to 16 (and use __assume_aligned) to speed up library implementation
+findcp.f90(169,5):remark #34026: call to memcpy implemented as a call to optimized library version
+findcp.f90(171,3):remark #34014: optimization advice for memset: increase the destination's alignment to 16 (and use __assume_aligned) to speed up library implementation
+findcp.f90(171,3):remark #34026: call to memset implemented as a call to optimized library version
+findcp.f90(174,5):remark #34014: optimization advice for memcpy: increase the destination's alignment to 16 (and use __assume_aligned) to speed up library implementation
+findcp.f90(174,5):remark #34014: optimization advice for memcpy: increase the source's alignment to 16 (and use __assume_aligned) to speed up library implementation
+findcp.f90(174,5):remark #34026: call to memcpy implemented as a call to optimized library version
+findcp.f90(179,7):remark #34014: optimization advice for memcpy: increase the destination's alignment to 16 (and use __assume_aligned) to speed up library implementation
+findcp.f90(179,7):remark #34014: optimization advice for memcpy: increase the source's alignment to 16 (and use __assume_aligned) to speed up library implementation
+findcp.f90(179,7):remark #34026: call to memcpy implemented as a call to optimized library version
+findcp.f90(190,20):remark #34014: optimization advice for memset: increase the destination's alignment to 16 (and use __assume_aligned) to speed up library implementation
+findcp.f90(190,20):remark #34026: call to memset implemented as a call to optimized library version
+findcp.f90(194,3):remark #34014: optimization advice for memcpy: increase the destination's alignment to 16 (and use __assume_aligned) to speed up library implementation
+findcp.f90(194,3):remark #34014: optimization advice for memcpy: increase the source's alignment to 16 (and use __assume_aligned) to speed up library implementation
+findcp.f90(194,3):remark #34026: call to memcpy implemented as a call to optimized library version
+===========================================================================
+
+Begin optimization report for: FINDMIN
+
+    Report from: Interprocedural optimizations [ipo]
+
+INLINE REPORT: (FINDMIN) [3/9=33.3%] findcp.f90(199,12)
+  -> EXTERN: (199,12) _alloca
+  -> EXTERN: (199,12) _alloca
+  -> EXTERN: (199,12) _alloca
+  -> EXTERN: (199,12) _alloca
+  -> EXTERN: (199,12) _alloca
+  -> EXTERN: (199,12) _alloca
+  -> EXTERN: (199,12) _alloca
+  -> EXTERN: (199,12) _alloca
+  -> EXTERN: (199,12) _alloca
+  -> EXTERN: (199,12) _alloca
+  -> EXTERN: (199,12) _alloca
+  -> EXTERN: (199,12) __getsp_inlined
+  -> EXTERN: (236,8) dsyevd_
+  -> EXTERN: (237,14) for_write_seq_lis
+  -> EXTERN: (237,14) for_write_seq_lis_xmit
+  -> EXTERN: (240,3) for_alloc_allocatable
+  -> EXTERN: (240,3) for_check_mult_overflow64
+  -> EXTERN: (241,3) for_alloc_allocatable
+  -> EXTERN: (241,3) for_check_mult_overflow64
+  -> EXTERN: (246,3) for_alloc_allocatable
+  -> EXTERN: (246,3) for_check_mult_overflow64
+  -> EXTERN: (247,3) for_alloc_allocatable
+  -> EXTERN: (247,3) for_check_mult_overflow64
+  -> EXTERN: (249,3) for_write_seq_fmt_xmit
+  -> EXTERN: (249,3) for_write_seq_fmt_xmit
+  -> EXTERN: (249,3) for_write_seq_fmt_xmit
+  -> EXTERN: (249,3) for_write_seq_fmt_xmit
+  -> EXTERN: (249,3) for_write_seq_fmt
+  -> EXTERN: (250,3) for_write_seq_fmt
+  -> EXTERN: (251,3) for_write_seq_fmt_xmit
+  -> EXTERN: (251,3) for_write_seq_fmt_xmit
+  -> EXTERN: (251,3) for_write_seq_fmt_xmit
+  -> EXTERN: (251,3) for_write_seq_fmt
+  -> EXTERN: (253,11) evaluatesurfgen_
+  -> EXTERN: (255,11) dnrm2_
+  -> (256,11) CALCHESS (isz = 837) (sz = 856)
+     [[ Inlining would exceed -inline-max-size value (856>230) <1>]]
+  -> INLINE: (258,14) WRITEHESS (isz = 142) (sz = 149)
+    -> EXTERN: (532,3) for_open
+    -> EXTERN: (535,5) for_write_seq_lis
+    -> EXTERN: (539,6) __getsp_inlined
+    -> EXTERN: (539,6) _alloca
+    -> EXTERN: (539,6) __resetsp_inlined
+    -> EXTERN: (539,6) for_write_seq_fmt
+    -> EXTERN: (541,9) for_close
+  -> (259,14) GETFREQ (isz = 1155) (sz = 1176)
+     [[ Inlining would exceed -inline-max-size value (1176>230) <1>]]
+  -> EXTERN: (261,11) for_write_seq_fmt_xmit
+  -> EXTERN: (261,11) for_write_seq_fmt
+  -> EXTERN: (264,13) for_write_seq_fmt_xmit
+  -> EXTERN: (264,13) for_write_seq_fmt_xmit
+  -> EXTERN: (264,13) for_write_seq_fmt_xmit
+  -> EXTERN: (264,13) for_write_seq_fmt
+  -> EXTERN: (270,11) dsyevd_
+  -> EXTERN: (273,17) for_write_seq_lis_xmit
+  -> EXTERN: (273,17) for_write_seq_lis
+  -> EXTERN: (282,11) dgemv_
+  -> EXTERN: (305,10) for_write_seq_fmt_xmit
+  -> EXTERN: (305,10) for_write_seq_fmt
+  -> EXTERN: (309,11) dgemv_
+  -> EXTERN: (311,11) dnrm2_
+  -> EXTERN: (316,6) for_write_seq_fmt
+  -> EXTERN: (316,6) for_write_seq_fmt_xmit
+  -> EXTERN: (316,6) for_write_seq_fmt_xmit
+  -> EXTERN: (316,6) for_write_seq_fmt_xmit
+  -> EXTERN: (319,8) for_write_seq_lis
+  -> EXTERN: (320,8) __resetsp_inlined
+  -> EXTERN: (320,8) for_write_seq_fmt_xmit
+  -> EXTERN: (320,8) _alloca
+  -> EXTERN: (320,8) for_write_seq_fmt
+  -> EXTERN: (320,8) __getsp_inlined
+  -> EXTERN: (327,1) __resetsp_inlined
+  -> EXTERN: (327,1) for_dealloc_allocatable
+  -> EXTERN: (327,1) for_dealloc_allocatable
+  -> EXTERN: (327,1) for_dealloc_allocatable
+  -> EXTERN: (327,1) for_dealloc_allocatable
+
+
+    Report from: Loop nest, Vector & Auto-parallelization optimizations [loop, vec, par]
+
+
+LOOP BEGIN at findcp.f90(254,6)
+   remark #25401: memcopy(with guard) generated
+   remark #17104: loop was not parallelized: existence of parallel dependence
+   remark #17106: parallel dependence: assumed ANTI dependence between grad line 254 and grad line 254
+   remark #17106: parallel dependence: assumed FLOW dependence between grad line 254 and grad line 254
+   remark #15542: loop was not vectorized: inner loop was already vectorized
+
+   LOOP BEGIN at findcp.f90(254,6)
+   <Multiversioned v2>
+      remark #17108: loop was not parallelized: insufficient computational work
+      remark #15388: vectorization support: reference grad has aligned access
+      remark #15389: vectorization support: reference cg has unaligned access
+      remark #15381: vectorization support: unaligned access used inside loop body
+      remark #15300: LOOP WAS VECTORIZED
+      remark #15449: unmasked aligned unit stride stores: 1 
+      remark #15450: unmasked unaligned unit stride loads: 1 
+      remark #15475: --- begin vector loop cost summary ---
+      remark #15476: scalar loop cost: 4 
+      remark #15477: vector loop cost: 1.250 
+      remark #15478: estimated potential speedup: 3.170 
+      remark #15479: lightweight vector operations: 3 
+      remark #15488: --- end vector loop cost summary ---
+   LOOP END
+
+   LOOP BEGIN at findcp.f90(254,6)
+   <Remainder, Multiversioned v2>
+   LOOP END
+LOOP END
+
+LOOP BEGIN at findcp.f90(538,3) inlined into findcp.f90(258,14)
+   remark #25096: Loop Interchange not done due to: Imperfect Loop Nest (Either at Source or due to other Compiler Transformations)
+   remark #25451: Advice: Loop Interchange, if possible, might help loopnest. Suggested Permutation: ( 1 2 ) --> ( 2 1 ) 
+   remark #17104: loop was not parallelized: existence of parallel dependence
+   remark #17106: parallel dependence: assumed OUTPUT dependence between 1515 line 539 and 1515 line 539
+   remark #17106: parallel dependence: assumed OUTPUT dependence between 1515 line 539 and 1515 line 539
+   remark #15542: loop was not vectorized: inner loop was already vectorized
+
+   LOOP BEGIN at findcp.f90(539,6) inlined into findcp.f90(258,14)
+      remark #17108: loop was not parallelized: insufficient computational work
+      remark #15388: vectorization support: reference 1562 has aligned access
+      remark #15300: LOOP WAS VECTORIZED
+      remark #15449: unmasked aligned unit stride stores: 1 
+      remark #15460: masked strided loads: 1 
+      remark #15475: --- begin vector loop cost summary ---
+      remark #15476: scalar loop cost: 4 
+      remark #15477: vector loop cost: 2.500 
+      remark #15478: estimated potential speedup: 1.600 
+      remark #15479: lightweight vector operations: 2 
+      remark #15481: heavy-overhead vector operations: 1 
+      remark #15488: --- end vector loop cost summary ---
+   LOOP END
+
+   LOOP BEGIN at findcp.f90(539,6) inlined into findcp.f90(258,14)
+   <Remainder>
+   LOOP END
+LOOP END
+
+LOOP BEGIN at findcp.f90(260,9)
+   remark #17104: loop was not parallelized: existence of parallel dependence
+   remark #17106: parallel dependence: assumed OUTPUT dependence between 608 line 261 and 608 line 261
+   remark #17106: parallel dependence: assumed OUTPUT dependence between 608 line 261 and 608 line 261
+   remark #15382: vectorization support: call to function for_write_seq_fmt cannot be vectorized   [ findcp.f90(261,11) ]
+   remark #15382: vectorization support: call to function for_write_seq_fmt_xmit cannot be vectorized   [ findcp.f90(261,11) ]
+   remark #15344: loop was not vectorized: vector dependence prevents vectorization
+   remark #15346: vector dependence: assumed OUTPUT dependence between 608 line 261 and 608 line 261
+   remark #15346: vector dependence: assumed OUTPUT dependence between 608 line 261 and 608 line 261
+LOOP END
+
+LOOP BEGIN at findcp.f90(263,9)
+   remark #17104: loop was not parallelized: existence of parallel dependence
+   remark #17106: parallel dependence: assumed OUTPUT dependence between 608 line 264 and 608 line 264
+   remark #17106: parallel dependence: assumed OUTPUT dependence between 608 line 264 and 608 line 264
+   remark #15382: vectorization support: call to function for_write_seq_fmt cannot be vectorized   [ findcp.f90(264,13) ]
+   remark #15382: vectorization support: call to function for_write_seq_fmt_xmit cannot be vectorized   [ findcp.f90(264,13) ]
+   remark #15382: vectorization support: call to function for_write_seq_fmt_xmit cannot be vectorized   [ findcp.f90(264,13) ]
+   remark #15382: vectorization support: call to function for_write_seq_fmt_xmit cannot be vectorized   [ findcp.f90(264,13) ]
+   remark #15344: loop was not vectorized: vector dependence prevents vectorization
+   remark #15346: vector dependence: assumed OUTPUT dependence between 608 line 264 and 608 line 264
+   remark #15346: vector dependence: assumed OUTPUT dependence between 608 line 264 and 608 line 264
+LOOP END
+
+LOOP BEGIN at findcp.f90(267,6)
+   remark #17104: loop was not parallelized: existence of parallel dependence
+   remark #17106: parallel dependence: assumed ANTI dependence between hinv line 267 and hinv line 267
+   remark #17106: parallel dependence: assumed FLOW dependence between hinv line 267 and hinv line 267
+   remark #15542: loop was not vectorized: inner loop was already vectorized
+
+   LOOP BEGIN at findcp.f90(267,6)
+      remark #25401: memcopy(with guard) generated
+      remark #17104: loop was not parallelized: existence of parallel dependence
+      remark #17106: parallel dependence: assumed ANTI dependence between hinv line 267 and hinv line 267
+      remark #17106: parallel dependence: assumed FLOW dependence between hinv line 267 and hinv line 267
+      remark #15542: loop was not vectorized: inner loop was already vectorized
+
+      LOOP BEGIN at findcp.f90(267,6)
+      <Peeled, Multiversioned v2>
+      LOOP END
+
+      LOOP BEGIN at findcp.f90(267,6)
+      <Multiversioned v2>
+         remark #17108: loop was not parallelized: insufficient computational work
+         remark #15388: vectorization support: reference hinv has aligned access
+         remark #15389: vectorization support: reference hess has unaligned access
+         remark #15381: vectorization support: unaligned access used inside loop body
+         remark #15300: LOOP WAS VECTORIZED
+         remark #15449: unmasked aligned unit stride stores: 1 
+         remark #15450: unmasked unaligned unit stride loads: 1 
+         remark #15475: --- begin vector loop cost summary ---
+         remark #15476: scalar loop cost: 4 
+         remark #15477: vector loop cost: 1.250 
+         remark #15478: estimated potential speedup: 3.000 
+         remark #15479: lightweight vector operations: 3 
+         remark #15488: --- end vector loop cost summary ---
+      LOOP END
+
+      LOOP BEGIN at findcp.f90(267,6)
+      <Remainder, Multiversioned v2>
+      LOOP END
+   LOOP END
+LOOP END
+
+LOOP BEGIN at findcp.f90(281,6)
+   remark #17108: loop was not parallelized: insufficient computational work
+   remark #15388: vectorization support: reference grad has aligned access
+   remark #15388: vectorization support: reference grad has aligned access
+   remark #15399: vectorization support: unroll factor set to 4
+   remark #15300: LOOP WAS VECTORIZED
+   remark #15448: unmasked aligned unit stride loads: 1 
+   remark #15449: unmasked aligned unit stride stores: 1 
+   remark #15475: --- begin vector loop cost summary ---
+   remark #15476: scalar loop cost: 6 
+   remark #15477: vector loop cost: 5.000 
+   remark #15478: estimated potential speedup: 4.130 
+   remark #15479: lightweight vector operations: 5 
+   remark #15488: --- end vector loop cost summary ---
+LOOP END
+
+LOOP BEGIN at findcp.f90(281,6)
+<Remainder>
+   remark #15388: vectorization support: reference grad has aligned access
+   remark #15388: vectorization support: reference grad has aligned access
+   remark #15301: REMAINDER LOOP WAS VECTORIZED
+LOOP END
+
+LOOP BEGIN at findcp.f90(281,6)
+<Remainder>
+LOOP END
+
+LOOP BEGIN at findcp.f90(292,6)
+   remark #25408: memset generated
+   remark #17104: loop was not parallelized: existence of parallel dependence
+   remark #17106: parallel dependence: assumed OUTPUT dependence between REM_MODES line 292 and REM_MODES line 292
+   remark #17106: parallel dependence: assumed OUTPUT dependence between REM_MODES line 292 and REM_MODES line 292
+   remark #15542: loop was not vectorized: inner loop was already vectorized
+
+   LOOP BEGIN at findcp.f90(292,6)
+   <Peeled>
+      remark #25015: Estimate of max trip count of loop=12
+   LOOP END
+
+   LOOP BEGIN at findcp.f90(292,6)
+      remark #17108: loop was not parallelized: insufficient computational work
+      remark #15388: vectorization support: reference REM_MODES has aligned access
+      remark #15399: vectorization support: unroll factor set to 2
+      remark #15300: LOOP WAS VECTORIZED
+      remark #15442: entire loop may be executed in remainder
+      remark #15449: unmasked aligned unit stride stores: 1 
+      remark #15475: --- begin vector loop cost summary ---
+      remark #15476: scalar loop cost: 4 
+      remark #15477: vector loop cost: 1.500 
+      remark #15478: estimated potential speedup: 1.500 
+      remark #15479: lightweight vector operations: 3 
+      remark #15488: --- end vector loop cost summary ---
+      remark #25015: Estimate of max trip count of loop=1
+   LOOP END
+
+   LOOP BEGIN at findcp.f90(292,6)
+   <Remainder>
+      remark #25015: Estimate of max trip count of loop=12
+   LOOP END
+LOOP END
+
+LOOP BEGIN at findcp.f90(293,6)
+   remark #17108: loop was not parallelized: insufficient computational work
+   remark #15388: vectorization support: reference w has aligned access   [ findcp.f90(294,19) ]
+   remark #15388: vectorization support: reference b1 has aligned access   [ findcp.f90(299,10) ]
+   remark #15388: vectorization support: reference b1 has aligned access   [ findcp.f90(299,10) ]
+   remark #15335: loop was not vectorized: vectorization possible but seems inefficient. Use vector always directive or -vec-threshold0 to override 
+   remark #15448: unmasked aligned unit stride loads: 1 
+   remark #15453: unmasked strided stores: 2 
+   remark #15454: masked aligned unit stride loads: 1 
+   remark #15455: masked aligned unit stride stores: 1 
+   remark #15475: --- begin vector loop cost summary ---
+   remark #15476: scalar loop cost: 52 
+   remark #15477: vector loop cost: 60.000 
+   remark #15478: estimated potential speedup: 0.860 
+   remark #15479: lightweight vector operations: 24 
+   remark #15480: medium-overhead vector operations: 1 
+   remark #15481: heavy-overhead vector operations: 2 
+   remark #15488: --- end vector loop cost summary ---
+   remark #25439: unrolled with remainder by 2  
+LOOP END
+
+LOOP BEGIN at findcp.f90(293,6)
+<Remainder>
+LOOP END
+
+LOOP BEGIN at findcp.f90(303,6)
+   remark #17104: loop was not parallelized: existence of parallel dependence
+   remark #17106: parallel dependence: assumed OUTPUT dependence between 608 line 305 and 608 line 305
+   remark #17106: parallel dependence: assumed OUTPUT dependence between 608 line 305 and 608 line 305
+   remark #15382: vectorization support: call to function for_write_seq_fmt cannot be vectorized   [ findcp.f90(305,10) ]
+   remark #15382: vectorization support: call to function for_write_seq_fmt_xmit cannot be vectorized   [ findcp.f90(305,10) ]
+   remark #15344: loop was not vectorized: vector dependence prevents vectorization
+   remark #15346: vector dependence: assumed OUTPUT dependence between 608 line 305 and 608 line 305
+   remark #15346: vector dependence: assumed OUTPUT dependence between 608 line 305 and 608 line 305
+LOOP END
+
+LOOP BEGIN at findcp.f90(313,8)
+   remark #17108: loop was not parallelized: insufficient computational work
+   remark #15388: vectorization support: reference b2 has aligned access
+   remark #15388: vectorization support: reference b2 has aligned access
+   remark #15399: vectorization support: unroll factor set to 4
+   remark #15300: LOOP WAS VECTORIZED
+   remark #15448: unmasked aligned unit stride loads: 1 
+   remark #15449: unmasked aligned unit stride stores: 1 
+   remark #15475: --- begin vector loop cost summary ---
+   remark #15476: scalar loop cost: 35 
+   remark #15477: vector loop cost: 5.000 
+   remark #15478: estimated potential speedup: 13.400 
+   remark #15479: lightweight vector operations: 5 
+   remark #15488: --- end vector loop cost summary ---
+LOOP END
+
+LOOP BEGIN at findcp.f90(313,8)
+<Remainder>
+   remark #15388: vectorization support: reference b2 has aligned access
+   remark #15388: vectorization support: reference b2 has aligned access
+   remark #15301: REMAINDER LOOP WAS VECTORIZED
+LOOP END
+
+LOOP BEGIN at findcp.f90(313,8)
+<Remainder>
+LOOP END
+
+LOOP BEGIN at findcp.f90(317,6)
+   remark #17108: loop was not parallelized: insufficient computational work
+   remark #15389: vectorization support: reference cgeom has unaligned access
+   remark #15389: vectorization support: reference cgeom has unaligned access
+   remark #15388: vectorization support: reference b2 has aligned access
+   remark #15381: vectorization support: unaligned access used inside loop body
+   remark #15399: vectorization support: unroll factor set to 4
+   remark #15300: LOOP WAS VECTORIZED
+   remark #15448: unmasked aligned unit stride loads: 1 
+   remark #15450: unmasked unaligned unit stride loads: 1 
+   remark #15451: unmasked unaligned unit stride stores: 1 
+   remark #15475: --- begin vector loop cost summary ---
+   remark #15476: scalar loop cost: 6 
+   remark #15477: vector loop cost: 19.000 
+   remark #15478: estimated potential speedup: 1.240 
+   remark #15479: lightweight vector operations: 3 
+   remark #15480: medium-overhead vector operations: 1 
+   remark #15481: heavy-overhead vector operations: 1 
+   remark #15488: --- end vector loop cost summary ---
+LOOP END
+
+LOOP BEGIN at findcp.f90(317,6)
+<Remainder>
+LOOP END
+
+LOOP BEGIN at findcp.f90(320,8)
+   remark #17108: loop was not parallelized: insufficient computational work
+   remark #15388: vectorization support: reference 953 has aligned access
+   remark #15388: vectorization support: reference e has aligned access
+   remark #15399: vectorization support: unroll factor set to 4
+   remark #15300: LOOP WAS VECTORIZED
+   remark #15448: unmasked aligned unit stride loads: 1 
+   remark #15449: unmasked aligned unit stride stores: 1 
+   remark #15475: --- begin vector loop cost summary ---
+   remark #15476: scalar loop cost: 6 
+   remark #15477: vector loop cost: 5.000 
+   remark #15478: estimated potential speedup: 4.160 
+   remark #15479: lightweight vector operations: 5 
+   remark #15488: --- end vector loop cost summary ---
+LOOP END
+
+LOOP BEGIN at findcp.f90(320,8)
+<Remainder>
+   remark #15388: vectorization support: reference 953 has aligned access
+   remark #15388: vectorization support: reference e has aligned access
+   remark #15301: REMAINDER LOOP WAS VECTORIZED
+LOOP END
+
+LOOP BEGIN at findcp.f90(320,8)
+<Remainder>
+LOOP END
+
+
+Non-optimizable loops:
+
+
+LOOP BEGIN at findcp.f90(324,3)
+   remark #15341: loop was not vectorized: nonstandard loop is not a vectorization candidate
+   remark #17102: loop was not parallelized: not a parallelization candidate
+LOOP END
+
+    Report from: Code generation optimizations [cg]
+
+findcp.f90(230,50):remark #34000: call to memcpy implemented inline with loads and stores with proven source (alignment, offset): (32, 0), and destination (alignment, offset): (16, 0)
+findcp.f90(220,49):remark #34000: call to memcpy implemented inline with loads and stores with proven source (alignment, offset): (32, 0), and destination (alignment, offset): (16, 0)
+findcp.f90(214,39):remark #34000: call to memcpy implemented inline with loads and stores with proven source (alignment, offset): (32, 0), and destination (alignment, offset): (16, 0)
+findcp.f90(213,48):remark #34000: call to memcpy implemented inline with loads and stores with proven source (alignment, offset): (32, 0), and destination (alignment, offset): (16, 0)
+findcp.f90(254,6):remark #34014: optimization advice for memcpy: increase the destination's alignment to 16 (and use __assume_aligned) to speed up library implementation
+findcp.f90(254,6):remark #34014: optimization advice for memcpy: increase the source's alignment to 16 (and use __assume_aligned) to speed up library implementation
+findcp.f90(254,6):remark #34026: call to memcpy implemented as a call to optimized library version
+findcp.f90(267,6):remark #34014: optimization advice for memcpy: increase the destination's alignment to 16 (and use __assume_aligned) to speed up library implementation
+findcp.f90(267,6):remark #34014: optimization advice for memcpy: increase the source's alignment to 16 (and use __assume_aligned) to speed up library implementation
+findcp.f90(267,6):remark #34026: call to memcpy implemented as a call to optimized library version
+findcp.f90(292,6):remark #34014: optimization advice for memset: increase the destination's alignment to 16 (and use __assume_aligned) to speed up library implementation
+findcp.f90(292,6):remark #34026: call to memset implemented as a call to optimized library version
+===========================================================================
+
+Begin optimization report for: FINDCP
+
+    Report from: Interprocedural optimizations [ipo]
+
+INLINE REPORT: (FINDCP) [4/9=44.4%] findcp.f90(358,9)
+  -> EXTERN: (358,9) for_set_reentrancy
+  -> EXTERN: (393,3) for_cpystr
+  -> EXTERN: (394,3) for_cpystr
+  -> EXTERN: (399,3) for_write_seq_lis
+  -> EXTERN: (400,3) for_write_seq_lis
+  -> EXTERN: (401,3) for_write_seq_lis
+  -> EXTERN: (402,3) for_write_seq_lis
+  -> EXTERN: (403,8) initpotential_
+  -> EXTERN: (404,8) getinfo_
+  -> EXTERN: (408,3) for_write_seq_fmt_xmit
+  -> EXTERN: (408,3) for_write_seq_fmt
+  -> EXTERN: (409,3) for_write_seq_fmt_xmit
+  -> EXTERN: (409,3) for_write_seq_fmt
+  -> EXTERN: (411,3) for_alloc_allocatable
+  -> EXTERN: (411,3) for_check_mult_overflow64
+  -> EXTERN: (412,3) for_alloc_allocatable
+  -> EXTERN: (412,3) for_check_mult_overflow64
+  -> EXTERN: (413,3) for_alloc_allocatable
+  -> EXTERN: (413,3) for_check_mult_overflow64
+  -> EXTERN: (414,3) for_alloc_allocatable
+  -> EXTERN: (414,3) for_check_mult_overflow64
+  -> EXTERN: (415,3) for_alloc_allocatable
+  -> EXTERN: (415,3) for_check_mult_overflow64
+  -> EXTERN: (416,3) for_alloc_allocatable
+  -> EXTERN: (416,3) for_check_mult_overflow64
+  -> EXTERN: (417,3) for_alloc_allocatable
+  -> EXTERN: (417,3) for_check_mult_overflow64
+  -> EXTERN: (418,3) for_alloc_allocatable
+  -> EXTERN: (418,3) for_check_mult_overflow64
+  -> EXTERN: (427,8) for_getcmd_arg
+  -> EXTERN: (429,7) for_stop_core
+  -> EXTERN: (431,5) for_write_seq_lis
+  -> EXTERN: (432,5) for_write_int_fmt
+  -> EXTERN: (435,10) for_getcmd_arg
+  -> EXTERN: (437,7) for_write_seq_lis
+  -> EXTERN: (440,7) for_read_int_lis
+  -> EXTERN: (442,9) for_write_seq_lis
+  -> EXTERN: (449,8) for_getcmd_arg
+  -> EXTERN: (451,5) for_write_seq_lis
+  -> EXTERN: (452,5) for_cpystr
+  -> EXTERN: (455,11) for_inquire
+  -> EXTERN: (457,7) for_open
+  -> EXTERN: (458,13) for_read_seq_nml
+  -> EXTERN: (459,13) for_close
+  -> EXTERN: (461,9) for_write_seq_lis
+  -> EXTERN: (464,3) __resetsp_inlined
+  -> EXTERN: (464,3) for_write_seq_lis
+  -> EXTERN: (464,3) __getsp_inlined
+  -> EXTERN: (464,43) for_concat
+  -> EXTERN: (464,43) _alloca
+  -> EXTERN: (464,45) for_trim
+  -> EXTERN: (465,8) readcolgeom_
+  -> EXTERN: (467,3) for_write_seq_fmt
+  -> EXTERN: (468,8) analysegeom_
+  -> EXTERN: (469,3) for_write_seq_fmt
+  -> INLINE: (470,8) ANALYSEGEOM2 (isz = 137) (sz = 156)
+    -> EXTERN: (344,3) for_open
+    -> EXTERN: (346,7) for_write_seq_fmt
+    -> EXTERN: (349,6) for_write_seq_fmt
+    -> EXTERN: (349,6) for_write_seq_fmt_xmit
+    -> EXTERN: (349,6) for_write_seq_fmt_xmit
+    -> EXTERN: (349,6) for_write_seq_fmt_xmit
+    -> EXTERN: (351,9) for_close
+  -> EXTERN: (471,3) for_write_seq_fmt
+  -> (473,8) FINDMIN (isz = 1663) (sz = 1696)
+     [[ Inlining would exceed -inline-max-size value (1696>253) <1>]]
+  -> EXTERN: (475,3) for_write_seq_fmt
+  -> EXTERN: (476,8) analysegeom_
+  -> EXTERN: (477,3) for_write_seq_fmt
+  -> (478,8) CALCHESS (isz = 837) (sz = 856)
+     [[ Inlining would exceed -inline-max-size value (856>230) <1>]]
+  -> INLINE: (479,8) WRITEHESS (isz = 142) (sz = 149)
+    -> EXTERN: (532,3) for_open
+    -> EXTERN: (535,5) for_write_seq_lis
+    -> EXTERN: (539,6) __getsp_inlined
+    -> EXTERN: (539,6) _alloca
+    -> EXTERN: (539,6) __resetsp_inlined
+    -> EXTERN: (539,6) for_write_seq_fmt
+    -> EXTERN: (541,9) for_close
+  -> (480,8) GETFREQ (isz = 1155) (sz = 1176)
+     [[ Inlining would exceed -inline-max-size value (1176>230) <1>]]
+  -> EXTERN: (482,5) for_write_seq_fmt_xmit
+  -> EXTERN: (482,5) for_write_seq_fmt
+  -> INLINE: (486,8) ANALYSEGEOM2 (isz = 137) (sz = 156)
+    -> EXTERN: (344,3) for_open
+    -> EXTERN: (346,7) for_write_seq_fmt
+    -> EXTERN: (349,6) for_write_seq_fmt
+    -> EXTERN: (349,6) for_write_seq_fmt_xmit
+    -> EXTERN: (349,6) for_write_seq_fmt_xmit
+    -> EXTERN: (349,6) for_write_seq_fmt_xmit
+    -> EXTERN: (351,9) for_close
+  -> INLINE: (489,12) PRINT_ANT_OUTPUT (isz = 128) (sz = 143)
+    -> EXTERN: (514,5) for_write_seq_lis
+    -> EXTERN: (515,5) for_write_seq_lis
+    -> EXTERN: (517,9) for_write_seq_fmt_xmit
+    -> EXTERN: (517,9) for_write_seq_fmt_xmit
+    -> EXTERN: (517,9) for_write_seq_fmt_xmit
+    -> EXTERN: (517,9) for_write_seq_fmt_xmit
+    -> EXTERN: (517,9) for_write_seq_fmt
+    -> EXTERN: (517,20) for_trim
+  -> EXTERN: (493,3) for_dealloc_allocatable
+  -> EXTERN: (494,3) for_dealloc_allocatable
+  -> EXTERN: (495,3) for_dealloc_allocatable
+  -> EXTERN: (496,3) for_dealloc_allocatable
+  -> EXTERN: (497,3) for_dealloc_allocatable
+  -> EXTERN: (498,3) for_dealloc_allocatable
+  -> EXTERN: (499,3) for_dealloc_allocatable
+
+
+    Report from: Loop nest, Vector & Auto-parallelization optimizations [loop, vec, par]
+
+
+LOOP BEGIN at findcp.f90(419,3)
+   remark #25408: memset generated
+   remark #17104: loop was not parallelized: existence of parallel dependence
+   remark #17106: parallel dependence: assumed OUTPUT dependence between DCHESS line 419 and DCHESS line 419
+   remark #17106: parallel dependence: assumed OUTPUT dependence between DCHESS line 419 and DCHESS line 419
+   remark #15542: loop was not vectorized: inner loop was already vectorized
+
+   LOOP BEGIN at findcp.f90(419,3)
+   <Peeled>
+      remark #25015: Estimate of max trip count of loop=12
+   LOOP END
+
+   LOOP BEGIN at findcp.f90(419,3)
+      remark #17108: loop was not parallelized: insufficient computational work
+      remark #15388: vectorization support: reference DCHESS has aligned access
+      remark #15399: vectorization support: unroll factor set to 2
+      remark #15300: LOOP WAS VECTORIZED
+      remark #15442: entire loop may be executed in remainder
+      remark #15449: unmasked aligned unit stride stores: 1 
+      remark #15475: --- begin vector loop cost summary ---
+      remark #15476: scalar loop cost: 4 
+      remark #15477: vector loop cost: 1.500 
+      remark #15478: estimated potential speedup: 1.500 
+      remark #15479: lightweight vector operations: 3 
+      remark #15488: --- end vector loop cost summary ---
+      remark #25015: Estimate of max trip count of loop=1
+   LOOP END
+
+   LOOP BEGIN at findcp.f90(419,3)
+   <Remainder>
+      remark #25015: Estimate of max trip count of loop=12
+   LOOP END
+LOOP END
+
+LOOP BEGIN at findcp.f90(420,3)
+   remark #25408: memset generated
+   remark #17104: loop was not parallelized: existence of parallel dependence
+   remark #17106: parallel dependence: assumed OUTPUT dependence between SKIP line 420 and SKIP line 420
+   remark #17106: parallel dependence: assumed OUTPUT dependence between SKIP line 420 and SKIP line 420
+   remark #15398: loop was not vectorized: loop was transformed to memset or memcpy
+
+   LOOP BEGIN at findcp.f90(420,3)
+      remark #17108: loop was not parallelized: insufficient computational work
+      remark #15388: vectorization support: reference SKIP has aligned access
+      remark #15335: loop was not vectorized: vectorization possible but seems inefficient. Use vector always directive or -vec-threshold0 to override 
+      remark #15449: unmasked aligned unit stride stores: 1 
+      remark #15475: --- begin vector loop cost summary ---
+      remark #15476: scalar loop cost: 2 
+      remark #15477: vector loop cost: 1.500 
+      remark #15478: estimated potential speedup: 0.820 
+      remark #15479: lightweight vector operations: 2 
+      remark #15480: medium-overhead vector operations: 1 
+      remark #15488: --- end vector loop cost summary ---
+      remark #25439: unrolled with remainder by 2  
+      remark #25015: Estimate of max trip count of loop=12
+   LOOP END
+
+   LOOP BEGIN at findcp.f90(420,3)
+   <Remainder>
+      remark #25015: Estimate of max trip count of loop=12
+   LOOP END
+LOOP END
+
+LOOP BEGIN at findcp.f90(348,3) inlined into findcp.f90(470,8)
+   remark #17104: loop was not parallelized: existence of parallel dependence
+   remark #17106: parallel dependence: assumed OUTPUT dependence between 958 line 349 and 958 line 349
+   remark #17106: parallel dependence: assumed OUTPUT dependence between 958 line 349 and 958 line 349
+   remark #15382: vectorization support: call to function for_write_seq_fmt cannot be vectorized   [ findcp.f90(349,6) ]
+   remark #15382: vectorization support: call to function for_write_seq_fmt_xmit cannot be vectorized   [ findcp.f90(349,6) ]
+   remark #15382: vectorization support: call to function for_write_seq_fmt_xmit cannot be vectorized   [ findcp.f90(349,6) ]
+   remark #15382: vectorization support: call to function for_write_seq_fmt_xmit cannot be vectorized   [ findcp.f90(349,6) ]
+   remark #15344: loop was not vectorized: vector dependence prevents vectorization
+   remark #15346: vector dependence: assumed OUTPUT dependence between 958 line 349 and 958 line 349
+   remark #15346: vector dependence: assumed OUTPUT dependence between 958 line 349 and 958 line 349
+LOOP END
+
+LOOP BEGIN at findcp.f90(538,3) inlined into findcp.f90(479,8)
+   remark #25096: Loop Interchange not done due to: Imperfect Loop Nest (Either at Source or due to other Compiler Transformations)
+   remark #25451: Advice: Loop Interchange, if possible, might help loopnest. Suggested Permutation: ( 1 2 ) --> ( 2 1 ) 
+   remark #17104: loop was not parallelized: existence of parallel dependence
+   remark #17106: parallel dependence: assumed OUTPUT dependence between 1515 line 539 and 1515 line 539
+   remark #17106: parallel dependence: assumed OUTPUT dependence between 1515 line 539 and 1515 line 539
+   remark #15542: loop was not vectorized: inner loop was already vectorized
+
+   LOOP BEGIN at findcp.f90(539,6) inlined into findcp.f90(479,8)
+      remark #17108: loop was not parallelized: insufficient computational work
+      remark #15388: vectorization support: reference 1562 has aligned access
+      remark #15300: LOOP WAS VECTORIZED
+      remark #15449: unmasked aligned unit stride stores: 1 
+      remark #15460: masked strided loads: 1 
+      remark #15475: --- begin vector loop cost summary ---
+      remark #15476: scalar loop cost: 4 
+      remark #15477: vector loop cost: 2.500 
+      remark #15478: estimated potential speedup: 1.600 
+      remark #15479: lightweight vector operations: 2 
+      remark #15481: heavy-overhead vector operations: 1 
+      remark #15488: --- end vector loop cost summary ---
+   LOOP END
+
+   LOOP BEGIN at findcp.f90(539,6) inlined into findcp.f90(479,8)
+   <Remainder>
+   LOOP END
+LOOP END
+
+LOOP BEGIN at findcp.f90(481,3)
+   remark #17104: loop was not parallelized: existence of parallel dependence
+   remark #17106: parallel dependence: assumed OUTPUT dependence between 1108 line 482 and 1108 line 482
+   remark #17106: parallel dependence: assumed OUTPUT dependence between 1108 line 482 and 1108 line 482
+   remark #15382: vectorization support: call to function for_write_seq_fmt cannot be vectorized   [ findcp.f90(482,5) ]
+   remark #15382: vectorization support: call to function for_write_seq_fmt_xmit cannot be vectorized   [ findcp.f90(482,5) ]
+   remark #15344: loop was not vectorized: vector dependence prevents vectorization
+   remark #15346: vector dependence: assumed OUTPUT dependence between 1108 line 482 and 1108 line 482
+   remark #15346: vector dependence: assumed OUTPUT dependence between 1108 line 482 and 1108 line 482
+LOOP END
+
+LOOP BEGIN at findcp.f90(348,3) inlined into findcp.f90(486,8)
+   remark #17104: loop was not parallelized: existence of parallel dependence
+   remark #17106: parallel dependence: assumed OUTPUT dependence between 958 line 349 and 958 line 349
+   remark #17106: parallel dependence: assumed OUTPUT dependence between 958 line 349 and 958 line 349
+   remark #15382: vectorization support: call to function for_write_seq_fmt cannot be vectorized   [ findcp.f90(349,6) ]
+   remark #15382: vectorization support: call to function for_write_seq_fmt_xmit cannot be vectorized   [ findcp.f90(349,6) ]
+   remark #15382: vectorization support: call to function for_write_seq_fmt_xmit cannot be vectorized   [ findcp.f90(349,6) ]
+   remark #15382: vectorization support: call to function for_write_seq_fmt_xmit cannot be vectorized   [ findcp.f90(349,6) ]
+   remark #15344: loop was not vectorized: vector dependence prevents vectorization
+   remark #15346: vector dependence: assumed OUTPUT dependence between 958 line 349 and 958 line 349
+   remark #15346: vector dependence: assumed OUTPUT dependence between 958 line 349 and 958 line 349
+LOOP END
+
+LOOP BEGIN at findcp.f90(516,5) inlined into findcp.f90(489,12)
+   remark #17104: loop was not parallelized: existence of parallel dependence
+   remark #17106: parallel dependence: assumed FLOW dependence between 1494 line 517 and 1494 line 517
+   remark #17106: parallel dependence: assumed ANTI dependence between 1494 line 517 and 1494 line 517
+   remark #15382: vectorization support: call to function for_trim cannot be vectorized   [ findcp.f90(517,20) ]
+   remark #15382: vectorization support: call to function for_write_seq_fmt cannot be vectorized   [ findcp.f90(517,9) ]
+   remark #15382: vectorization support: call to function for_write_seq_fmt_xmit cannot be vectorized   [ findcp.f90(517,9) ]
+   remark #15382: vectorization support: call to function for_write_seq_fmt_xmit cannot be vectorized   [ findcp.f90(517,9) ]
+   remark #15382: vectorization support: call to function for_write_seq_fmt_xmit cannot be vectorized   [ findcp.f90(517,9) ]
+   remark #15382: vectorization support: call to function for_write_seq_fmt_xmit cannot be vectorized   [ findcp.f90(517,9) ]
+   remark #15344: loop was not vectorized: vector dependence prevents vectorization
+   remark #15346: vector dependence: assumed FLOW dependence between 1494 line 517 and 1494 line 517
+   remark #15346: vector dependence: assumed ANTI dependence between 1494 line 517 and 1494 line 517
+LOOP END
+
+    Report from: Code generation optimizations [cg]
+
+findcp.f90(419,3):remark #34014: optimization advice for memset: increase the destination's alignment to 16 (and use __assume_aligned) to speed up library implementation
+findcp.f90(419,3):remark #34026: call to memset implemented as a call to optimized library version
+findcp.f90(420,3):remark #34014: optimization advice for memset: increase the destination's alignment to 16 (and use __assume_aligned) to speed up library implementation
+findcp.f90(420,3):remark #34026: call to memset implemented as a call to optimized library version
+===========================================================================
+
+Begin optimization report for: opttools._
+
+    Report from: Interprocedural optimizations [ipo]
+
+INLINE REPORT: (opttools._) [5/9=55.6%] findcp.f90(19,8)
+
+===========================================================================
+
+Begin optimization report for: OPTTOOLS::GEN_MOLDEN_FILE
+
+    Report from: Interprocedural optimizations [ipo]
+
+INLINE REPORT: (OPTTOOLS::GEN_MOLDEN_FILE) [6/9=66.7%] findcp.f90(96,12)
+  -> EXTERN: (109,9) for_write_int_fmt
+  -> EXTERN: (110,9) for_cpystr
+  -> EXTERN: (110,12) for_trim
+  -> EXTERN: (112,9) for_open
+  -> EXTERN: (114,17) for_write_seq_fmt
+  -> EXTERN: (119,9) for_write_seq_fmt
+  -> EXTERN: (120,9) for_write_seq_fmt
+  -> EXTERN: (122,9) for_write_seq_fmt
+  -> EXTERN: (124,17) for_write_seq_fmt
+  -> EXTERN: (127,9) for_write_seq_fmt
+  -> EXTERN: (129,17) for_write_seq_fmt
+  -> EXTERN: (129,17) for_write_seq_fmt_xmit
+  -> EXTERN: (129,17) for_write_seq_fmt_xmit
+  -> EXTERN: (129,17) for_write_seq_fmt_xmit
+  -> EXTERN: (129,44) for_trim
+  -> EXTERN: (133,9) for_write_seq_fmt
+  -> EXTERN: (135,17) for_write_seq_fmt
+  -> EXTERN: (137,25) for_write_seq_fmt_xmit
+  -> EXTERN: (137,25) for_write_seq_fmt_xmit
+  -> EXTERN: (137,25) for_write_seq_fmt
+  -> EXTERN: (142,9) for_write_seq_fmt
+
+
+    Report from: Loop nest, Vector & Auto-parallelization optimizations [loop, vec, par]
+
+
+LOOP BEGIN at findcp.f90(123,9)
+   remark #17104: loop was not parallelized: existence of parallel dependence
+   remark #17106: parallel dependence: assumed OUTPUT dependence between 309 line 124 and 309 line 124
+   remark #17106: parallel dependence: assumed OUTPUT dependence between 309 line 124 and 309 line 124
+   remark #15382: vectorization support: call to function for_write_seq_fmt cannot be vectorized   [ findcp.f90(124,17) ]
+   remark #15344: loop was not vectorized: vector dependence prevents vectorization
+   remark #15346: vector dependence: assumed OUTPUT dependence between 309 line 124 and 309 line 124
+   remark #15346: vector dependence: assumed OUTPUT dependence between 309 line 124 and 309 line 124
+LOOP END
+
+LOOP BEGIN at findcp.f90(128,9)
+   remark #17104: loop was not parallelized: existence of parallel dependence
+   remark #17106: parallel dependence: assumed FLOW dependence between 433 line 129 and 433 line 129
+   remark #17106: parallel dependence: assumed ANTI dependence between 433 line 129 and 433 line 129
+   remark #15382: vectorization support: call to function for_trim cannot be vectorized   [ findcp.f90(129,44) ]
+   remark #15382: vectorization support: call to function for_write_seq_fmt cannot be vectorized   [ findcp.f90(129,17) ]
+   remark #15382: vectorization support: call to function for_write_seq_fmt_xmit cannot be vectorized   [ findcp.f90(129,17) ]
+   remark #15382: vectorization support: call to function for_write_seq_fmt_xmit cannot be vectorized   [ findcp.f90(129,17) ]
+   remark #15382: vectorization support: call to function for_write_seq_fmt_xmit cannot be vectorized   [ findcp.f90(129,17) ]
+   remark #15344: loop was not vectorized: vector dependence prevents vectorization
+   remark #15346: vector dependence: assumed FLOW dependence between 433 line 129 and 433 line 129
+   remark #15346: vector dependence: assumed ANTI dependence between 433 line 129 and 433 line 129
+LOOP END
+
+LOOP BEGIN at findcp.f90(134,9)
+   remark #17104: loop was not parallelized: existence of parallel dependence
+   remark #17106: parallel dependence: assumed OUTPUT dependence between 309 line 135 and 309 line 137
+   remark #17106: parallel dependence: assumed OUTPUT dependence between 309 line 137 and 309 line 135
+   remark #15382: vectorization support: call to function for_write_seq_fmt cannot be vectorized   [ findcp.f90(135,17) ]
+   remark #15382: vectorization support: call to function for_write_seq_fmt cannot be vectorized   [ findcp.f90(137,25) ]
+   remark #15382: vectorization support: call to function for_write_seq_fmt_xmit cannot be vectorized   [ findcp.f90(137,25) ]
+   remark #15382: vectorization support: call to function for_write_seq_fmt_xmit cannot be vectorized   [ findcp.f90(137,25) ]
+   remark #15344: loop was not vectorized: vector dependence prevents vectorization
+   remark #15346: vector dependence: assumed OUTPUT dependence between 309 line 135 and 309 line 137
+   remark #15346: vector dependence: assumed OUTPUT dependence between 309 line 137 and 309 line 135
+
+   LOOP BEGIN at findcp.f90(136,17)
+      remark #17104: loop was not parallelized: existence of parallel dependence
+      remark #17106: parallel dependence: assumed OUTPUT dependence between 309 line 137 and 309 line 137
+      remark #17106: parallel dependence: assumed OUTPUT dependence between 309 line 137 and 309 line 137
+      remark #15382: vectorization support: call to function for_write_seq_fmt cannot be vectorized   [ findcp.f90(137,25) ]
+      remark #15382: vectorization support: call to function for_write_seq_fmt_xmit cannot be vectorized   [ findcp.f90(137,25) ]
+      remark #15382: vectorization support: call to function for_write_seq_fmt_xmit cannot be vectorized   [ findcp.f90(137,25) ]
+      remark #15344: loop was not vectorized: vector dependence prevents vectorization
+      remark #15346: vector dependence: assumed OUTPUT dependence between 309 line 137 and 309 line 137
+      remark #15346: vector dependence: assumed OUTPUT dependence between 309 line 137 and 309 line 137
+   LOOP END
+LOOP END
+===========================================================================
+
+Begin optimization report for: ANALYSEGEOM2
+
+    Report from: Interprocedural optimizations [ipo]
+
+INLINE REPORT: (ANALYSEGEOM2) [7/9=77.8%] findcp.f90(332,12)
+  -> EXTERN: (344,3) for_open
+  -> EXTERN: (346,7) for_write_seq_fmt
+  -> EXTERN: (349,6) for_write_seq_fmt_xmit
+  -> EXTERN: (349,6) for_write_seq_fmt_xmit
+  -> EXTERN: (349,6) for_write_seq_fmt_xmit
+  -> EXTERN: (349,6) for_write_seq_fmt
+  -> EXTERN: (351,9) for_close
+
+
+    Report from: Loop nest, Vector & Auto-parallelization optimizations [loop, vec, par]
+
+
+LOOP BEGIN at findcp.f90(348,3)
+   remark #17104: loop was not parallelized: existence of parallel dependence
+   remark #17106: parallel dependence: assumed OUTPUT dependence between 958 line 349 and 958 line 349
+   remark #17106: parallel dependence: assumed OUTPUT dependence between 958 line 349 and 958 line 349
+   remark #15382: vectorization support: call to function for_write_seq_fmt cannot be vectorized   [ findcp.f90(349,6) ]
+   remark #15382: vectorization support: call to function for_write_seq_fmt_xmit cannot be vectorized   [ findcp.f90(349,6) ]
+   remark #15382: vectorization support: call to function for_write_seq_fmt_xmit cannot be vectorized   [ findcp.f90(349,6) ]
+   remark #15382: vectorization support: call to function for_write_seq_fmt_xmit cannot be vectorized   [ findcp.f90(349,6) ]
+   remark #15344: loop was not vectorized: vector dependence prevents vectorization
+   remark #15346: vector dependence: assumed OUTPUT dependence between 958 line 349 and 958 line 349
+   remark #15346: vector dependence: assumed OUTPUT dependence between 958 line 349 and 958 line 349
+LOOP END
+===========================================================================
+
+Begin optimization report for: WRITEHESS
+
+    Report from: Interprocedural optimizations [ipo]
+
+INLINE REPORT: (WRITEHESS) [8/9=88.9%] findcp.f90(525,12)
+  -> EXTERN: (532,3) for_open
+  -> EXTERN: (535,5) for_write_seq_lis
+  -> EXTERN: (539,6) for_write_seq_fmt
+  -> EXTERN: (539,6) __resetsp_inlined
+  -> EXTERN: (539,6) _alloca
+  -> EXTERN: (539,6) __getsp_inlined
+  -> EXTERN: (541,9) for_close
+
+
+    Report from: Loop nest, Vector & Auto-parallelization optimizations [loop, vec, par]
+
+
+LOOP BEGIN at findcp.f90(538,3)
+   remark #25096: Loop Interchange not done due to: Imperfect Loop Nest (Either at Source or due to other Compiler Transformations)
+   remark #25451: Advice: Loop Interchange, if possible, might help loopnest. Suggested Permutation: ( 1 2 ) --> ( 2 1 ) 
+   remark #17104: loop was not parallelized: existence of parallel dependence
+   remark #17106: parallel dependence: assumed OUTPUT dependence between 1515 line 539 and 1515 line 539
+   remark #17106: parallel dependence: assumed OUTPUT dependence between 1515 line 539 and 1515 line 539
+   remark #15542: loop was not vectorized: inner loop was already vectorized
+
+   LOOP BEGIN at findcp.f90(539,6)
+      remark #17108: loop was not parallelized: insufficient computational work
+      remark #15388: vectorization support: reference 1562 has aligned access
+      remark #15300: LOOP WAS VECTORIZED
+      remark #15449: unmasked aligned unit stride stores: 1 
+      remark #15460: masked strided loads: 1 
+      remark #15475: --- begin vector loop cost summary ---
+      remark #15476: scalar loop cost: 4 
+      remark #15477: vector loop cost: 2.500 
+      remark #15478: estimated potential speedup: 1.600 
+      remark #15479: lightweight vector operations: 2 
+      remark #15481: heavy-overhead vector operations: 1 
+      remark #15488: --- end vector loop cost summary ---
+   LOOP END
+
+   LOOP BEGIN at findcp.f90(539,6)
+   <Remainder>
+   LOOP END
+LOOP END
+===========================================================================
+
+Begin optimization report for: PRINT_ANT_OUTPUT
+
+    Report from: Interprocedural optimizations [ipo]
+
+INLINE REPORT: (PRINT_ANT_OUTPUT) [9/9=100.0%] findcp.f90(506,12)
+  -> EXTERN: (514,5) for_write_seq_lis
+  -> EXTERN: (515,5) for_write_seq_lis
+  -> EXTERN: (517,9) for_write_seq_fmt
+  -> EXTERN: (517,9) for_write_seq_fmt_xmit
+  -> EXTERN: (517,9) for_write_seq_fmt_xmit
+  -> EXTERN: (517,9) for_write_seq_fmt_xmit
+  -> EXTERN: (517,9) for_write_seq_fmt_xmit
+  -> EXTERN: (517,20) for_trim
+
+
+    Report from: Loop nest, Vector & Auto-parallelization optimizations [loop, vec, par]
+
+
+LOOP BEGIN at findcp.f90(516,5)
+   remark #17104: loop was not parallelized: existence of parallel dependence
+   remark #17106: parallel dependence: assumed FLOW dependence between 1494 line 517 and 1494 line 517
+   remark #17106: parallel dependence: assumed ANTI dependence between 1494 line 517 and 1494 line 517
+   remark #15382: vectorization support: call to function for_trim cannot be vectorized   [ findcp.f90(517,20) ]
+   remark #15382: vectorization support: call to function for_write_seq_fmt cannot be vectorized   [ findcp.f90(517,9) ]
+   remark #15382: vectorization support: call to function for_write_seq_fmt_xmit cannot be vectorized   [ findcp.f90(517,9) ]
+   remark #15382: vectorization support: call to function for_write_seq_fmt_xmit cannot be vectorized   [ findcp.f90(517,9) ]
+   remark #15382: vectorization support: call to function for_write_seq_fmt_xmit cannot be vectorized   [ findcp.f90(517,9) ]
+   remark #15382: vectorization support: call to function for_write_seq_fmt_xmit cannot be vectorized   [ findcp.f90(517,9) ]
+   remark #15344: loop was not vectorized: vector dependence prevents vectorization
+   remark #15346: vector dependence: assumed FLOW dependence between 1494 line 517 and 1494 line 517
+   remark #15346: vector dependence: assumed ANTI dependence between 1494 line 517 and 1494 line 517
+LOOP END
+===========================================================================
+
+    Report from: Interprocedural optimizations [ipo]
+
+INLINING FOOTNOTES:
+
+<1> The subprogram is larger than the inliner would normally inline.  Use the
+    option -inline-max-size to increase the size of any subprogram that would
+    normally be inlined, add "!DIR$ATTRIBUTES FORCEINLINE" to the
+    declaration of the called function, or add "!DIR$ FORCEINLINE" before
+    the call site.
+

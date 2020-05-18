@@ -1,0 +1,16 @@
+/
+&GENERAL
+printlvl  = 5
+jobtype   = 1
+natoms    = 4
+atmgrp    = 1, 2, 2, 3
+ngrp      = 4
+groupsym  = 1, 2, 2, 1
+groupprty = 1,-1, 1, 1
+order     = 3
+inputfl   = 'hd.data'
+/
+&MAKESURF
+/
+&potlib
+/

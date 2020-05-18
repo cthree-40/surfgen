@@ -391,6 +391,13 @@ SUBROUTINE initPotential()
   CALL prepot
 END SUBROUTINE
 !---------------------------------------------------------------------
+! samething as prepot just a different name
+SUBROUTINE initPotential_XY3()
+  use xy3
+  CALL prepot
+  CALL init_xy3
+END SUBROUTINE
+!---------------------------------------------------------------------
  ! getData returns the Hd predicted energies and gradients
  ! cartgeom [input] DOUBLE PRECISION, dimension(3*natoms)
  !          Cartesian coordinates of all the atoms.
@@ -463,6 +470,53 @@ END SUBROUTINE
    Gd(1:3*natoms,1:nstates,1:nstates) = gdpck
  end subroutine EvaluateSurfgen77
 
+!---------------------------------------------------------------------
+! MODIFIED TO CALL XY3 routines
+! Wrapper for fotran 77 callers where array size may need to be fixed
+! parameters.  The subroutine takes input arrays with the size passed
+! as argument, repack them then calls EvaluateSurfgen using repacked
+! arrays.  
+!
+! Arguments
+! ---------
+! mnatm [in] INTEGER
+!       Maximum number of atoms. Used as dimensionality of cgeos,Ga and Gd
+! mnst  [in] INTEGER 
+!       Maximum number of states, used as dimensionality of arrays
+! cgeom [in] DOUBLE PRECISION, dimension(3*mnatm)
+!       Cartesian geometry of the molecule.
+! Ea    [out] DOUBLE PRECISION,dimension(mnst)
+!       Adiabatic energies of all electronic states.
+! Ga    [out] DOUBLE PRECISION,dimension(3*mnat,mnst,mnst)
+!       The diagonal contains adiabatic energy gradients, and off-diagonal 
+!       contains derivative coupling vectors.
+! Ed    [out] DOUBLE PRECISION,dimension(mnst,mnst)
+!       Diabatic energy matrix
+! Gd    [out] DOUBLE PRECISION,dimension(3*mnat,mnst,mnst)
+!       Gradient of diabatic energies.
+ subroutine EvaluateSurfgen77_XY3(mnatm,mnst,cgeom,Ea,Ga,Ed,Gd)
+   USE progdata, ONLY: natoms
+   USE hddata, ONLY: nstates
+   integer, intent(in)          ::  mnatm,mnst
+   double precision,intent(in)  ::  cgeom(3*mnatm)
+   double precision,intent(out) ::  Ea(mnst),Ed(mnst,mnst)
+   double precision,intent(out),dimension(3*mnatm,mnst,mnst) :: Ga,Gd
+! local packed variables
+   double precision :: cgeompck(3*natoms),edpck(nstates,nstates)
+   double precision,dimension(3*natoms,nstates,nstates) :: gapck,gdpck
+   if(natoms>mnatm.or.nstates>mnst) then
+     print *, "EvaluateSurgen: Maximum on atom or state count insufficient."
+     print *, "natoms, mnatm = ", natoms,  ", ", mnatm
+     print *, "nstates, mnst = ", nstates, ", ", mnst
+     stop
+   end if
+   cgeompck = cgeom(1:3*natoms)
+   call EvaluateSurfgen_XY3(cgeompck,Ea,gapck,edpck,gdpck)
+   Ed(1:nstates,1:nstates) = edpck
+   Ga(1:3*natoms,1:nstates,1:nstates) = gapck
+   Gd(1:3*natoms,1:nstates,1:nstates) = gdpck
+ end subroutine EvaluateSurfgen77_XY3
+ 
 !---------------------------------------------------------------------
 ! CalculateDerivNAD: calculate the derivatives of the derivative
 ! coupling.
@@ -872,6 +926,51 @@ SUBROUTINE EvaluateSurfgen(cgeom,energy,cgrads,hmat,dcgrads)
 
   return
 END SUBROUTINE EvaluateSurfgen
+
+!----------------------------------------------------------------------------------
+![Description]
+! EvaluateSurfgen_XY3 evaluates a 4-atom system, where 3 atoms are equivalent,
+! e.g. OH3, but the surface has treated only 2 equivalently. A canonical ordering
+! is established where equivalent atoms 1 and 2 are those atoms that are nearest.
+subroutine EvaluateSurfgen_XY3(cgeom,energy,cgrads,hmat,dcgrads)
+  use progdata, ONLY: natoms
+  use hddata,   ONLY: nstates
+  use xy3
+  double precision, intent(in) :: cgeom(3*natoms)
+  double precision, intent(out):: energy(nstates), hmat(nstates,nstates)
+  double precision, intent(out):: cgrads(3*natoms,nstates,nstates)
+  double precision, intent(out):: dcgrads(3*natoms,nstates,nstates)
+  double precision :: canon_cg(3*natoms,nstates,nstates)
+  double precision :: canon_dc(3*natoms,nstates,nstates)
+  integer :: i, j, k
+  if (natoms .ne. 4) stop "NATOMS != 4. Can't use XY3 routines!"
+  call make_ymap(cgeom, natoms)
+  do i = 1, 4
+    canon_geom(:,i) = cgeom((ymap(i)*3-2):(ymap(i)*3))
+  end do
+  print "(A,4i3)", "Mapping: ", ymap
+  print *, "New geometry: "
+  print "(3f14.8)", canon_geom
+  call EvaluateSurfgen(canon_geom, energy, canon_cg, hmat, canon_dc)
+  print "(A,f20.15)", "Energy(1) ", energy(1)
+  print *, "Cannon grads: "
+  print "(12f14.8)", canon_cg(:,1,2)
+  print "(12f14.8)", canon_dc(:,1,2)
+  ! Reorder gradients
+  do i = 1, nstates
+    do j = 1, nstates
+      do k = 1, 4
+        cgrads(k*3-2:k*3,j,i)  = canon_cg((ymap(k)*3-2):(ymap(k)*3),j,i) 
+        dcgrads(k*3-2:k*3,j,i) = canon_dc((ymap(k)*3-2):(ymap(k)*3),j,i) 
+      end do
+    end do
+  end do
+  print *, "Final grads: "
+  print "(12f14.8)", cgrads(:,1,2)
+  print "(12f14.8)", dcgrads(:,1,2)
+  return
+end subroutine EvaluateSurfgen_XY3
+
 !----------------------------------------------------------------------------------
 ![Description]
 ! getEnergy retrieves adiabatic energies at a certain geometry

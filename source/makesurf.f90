@@ -3621,7 +3621,10 @@ SUBROUTINE readDispOptions(exclEner,exclGrad,exactEner,exactGrad,exactDiff,enfGO
 
   do while(ios==0)
     read(PTFL,1001,IOSTAT=ios) job,ptid,i,j
-    if(ios/=0)exit
+    if(ios/=0) then
+      print *, "ios = ", ios
+      exit
+    end if
     if(i>j)then
       Print *,"Warning: i>j in points.in.  i and j switched"
       tmp=i
@@ -3632,9 +3635,11 @@ SUBROUTINE readDispOptions(exclEner,exclGrad,exactEner,exactGrad,exactDiff,enfGO
       if(ptid<0)then
         wt=-1/dble(ptid)
       else
-        wt=ptid
+        wt=dble(ptid)
       end if
-      if(printlvl>0)print "(3A,2I7,A,F12.7)","    Job:",job,", Point Range",i,j,", wt=",wt
+
+      print "(3A,2I7,A,F12.7)","    Job:",job,", Point Range",i,j,", wt=",wt
+
       if(i<1.or.j>npoints)then
         print *,"Point index out of range. "
         i=max(i,1)
