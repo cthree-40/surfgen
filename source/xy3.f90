@@ -2,30 +2,36 @@
 ! with the G4 (two equivalent atoms) CNPI group in surfgen.
 module xy3
   implicit none
-
-  ! Three distances are evaluated: Y12, Y13, and Y23
+  
+  ! Six distances are evaluated: Y12, Y13, and Y23; and XY1, XY2, and XY3
   integer, dimension(3,3)          :: ypairs
   double precision, dimension(3)   :: ydists
+  double precision, dimension(3)   :: xdists
+  
+  ! Tolerance to use second distance criterion (XYa distances)
+  double precision, parameter :: xdtol = 1d-2
+  
   ! Ordered geometry
   double precision, dimension(3,4) :: canon_geom
   ! Mapping
   integer, dimension(4)            :: ymap
-
+  
 contains
   !*
   ! compute_yatomdists: compute Y atom distances
   !*
-  subroutine compute_yatomdists(cgeom, natom)
+  subroutine compute_xyatomdists(cgeom, natom)
     implicit none
     integer, intent(in) :: natom
     double precision, dimension(3, natom), intent(in) :: cgeom
     integer :: i
     ydists = 0d0
     do i = 1, 3
-      ydists(i) = distance_3d(cgeom(:,ypairs(1,i)), cgeom(:,ypairs(2,i)))
+            ydists(i) = distance_3d(cgeom(:,ypairs(1,i)), cgeom(:,ypairs(2,i)))
+            xdists(i) = distance_3d(cgeom(:,1), cgeom(:,ypairs(3,i)))
     end do
     return
-  end subroutine compute_yatomdists
+  end subroutine compute_xyatomdists
   !*
   ! distance_3d: compute distance between two points in 3D
   !*
@@ -74,8 +80,14 @@ contains
     integer, intent(in) :: na
     double precision, dimension(3,na), intent(in) :: cgeom
     integer :: index
-    call compute_yatomdists(cgeom, na)
-    index = find_min_array(ydists, 3)
+    call compute_xyatomdists(cgeom, na)
+    index = find_min_array(xdists, 3)
+    ! Check if all distances are within XDTOL
+    if (    abs(ydists(1)-ydists(2)) .le. xdtol .and. &
+            abs(ydists(1)-ydists(3)) .le. xdtol .and. &
+            abs(ydists(2)-ydists(3)) .le. xdtol ) then
+            index = find_min_array(xdists, 3)
+    end if
     ymap(1) = 1
     ymap(2) = ypairs(1,index)
     ymap(3) = ypairs(2,index)
