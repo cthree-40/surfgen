@@ -34,6 +34,7 @@ program testpoints
   logical :: printm, mweight ! print molden output, print molden as 
                              ! mass-weighted vectors
   logical :: nnout           ! print input for nn initial guess
+  logical :: colout          ! print adiabatic data in COL7 formats
   logical :: grid            ! if MEX, generate grid in g and h
   integer :: ngpts           ! number of grid points along one direction
                              ! total points will be ngpts**2
@@ -49,6 +50,12 @@ program testpoints
   character(255) :: gname
   logical :: csvout
 
+  character(255), dimension(:,:), allocatable :: colgradfl
+  integer, dimension(:,:), allocatable        :: colgradun
+  integer :: coleun
+  character(255) :: colefl
+  double precision :: coleshift
+  integer :: ii
   
   double precision, dimension(10) :: bondval, angval, oopval
   double precision, dimension(30) :: freqs
@@ -65,7 +72,7 @@ program testpoints
   print *,"Checking for input file"
   allocate(mex(2))
   call read_input_file_outnml(printm, mweight, printl, mex, grid, &
-          ngpts, dsize, nnout)
+          ngpts, dsize, nnout, colout, coleshift)
   allocate(bonds(2,10))
   allocate(angles(3,10))
   allocate(oopang(4,10))
@@ -108,6 +115,54 @@ program testpoints
 
   print "(A,I8)","  Number of geometries found in file: ",npts
 
+  if (colout) then ! If we are preparing columbus output, ready files
+    allocate(colgradfl(nstates,nstates))
+    allocate(colgradun(nstates,nstates))
+    ! Set unit numbers
+    ii = 31
+    do i = 1, nstates
+      do j = i, nstates
+        colgradun(i,j) = ii
+        ii = ii + 1
+        if (i .ne. j) colgradun(j,i) = colgradun(i,j)
+      end do
+    end do
+    coleun = ii
+    ! Set file names
+    write(colefl,"(A)") "energy.all"
+    do i = 1, nstates
+      write(colgradfl(i,i), &
+        "('cartgrd.drt1.state',i1,'.all')") i
+      print "(A,A)", "Write adiabatic gradients: ", trim(adjustl(colgradfl(i,i)))
+      do j = i + 1, nstates
+        write(colgradfl(i,j), &
+          "('cartgrd_total.drt1.state',i1,'.drt1.state',i1,'.all')") i, j
+        colgradfl(j,i) = colgradfl(i,j)
+        print "(A,A)","Write couplings to: ",trim(adjustl(colgradfl(i,j)))
+      end do
+    end do
+    ! Open files
+    open(file=trim(adjustl(colefl)),unit=coleun,status="unknown",&
+      position="rewind",action="write",iostat=ios)
+    if (ios .ne. 0) stop "Could not open energy.all to write!"
+    do i = 1, nstates
+      open(file=trim(adjustl(colgradfl(i,i))),unit=colgradun(i,i),&
+        position="rewind",action="write",iostat=ios)
+      if (ios .ne. 0) then
+        print "(A,i3,i3)", "Could not open gradient file ", i, i
+        stop
+      end if
+      do j = i + 1, nstates
+        open(file=trim(adjustl(colgradfl(i,j))),unit=colgradun(i,j),&
+          position="rewind",action="write",iostat=ios)
+        if (ios .ne. 0) then
+          print "(A,i3,i3)", "could not open gradient file ", i, j
+          stop
+        end if
+      end do
+    end do
+  end if ! if (colout .eq. .true.)
+
   do i=1,npts
     print *,""
     print *,"Cartesian geometry"
@@ -135,6 +190,16 @@ program testpoints
     print *,""
     print *,"Adiabatic energy(a.u.)"
     print "(2x,10F24.15)",e
+
+    ! Columbus-format adiabatic data
+    if (colout) then
+      do j = 1, nstates
+        write(coleun,"(F14.8)",advance="no") e(j)+coleshift
+        write(coleun,"(1x)",advance="no")
+      end do
+      write(coleun,"('')")
+    end if
+    
     print *,"Adiabatic energy(cm-1)"
     print "(2x,10F24.15)",e*219474.6305d0
     print *,""
@@ -197,7 +262,17 @@ program testpoints
       do k=1,j
          print "(A,I3,A,I3,A,E13.5)"," block (",j,",",k,"),|F|=",dnrm2(3*natoms,cg(1,j,k),1)
          print "(3F18.10)",cg(:,j,k)
-      end do!k
+
+         ! Columbus adiabatic output
+         if (colout) then
+           if (j .ne. k) then
+             write(colgradun(j,k),"(3D15.6)") cg(:,j,k)*abs(e(j)-e(k))
+           else
+             write(colgradun(j,k),"(3D15.6)") cg(:,j,k)
+           end if
+         end if ! if (colout .eq. .true.)
+         
+       end do!k
     end do!j
     print *,""
     print *,"Cartesian Gradients in Diabatic Representation"
@@ -649,11 +724,11 @@ contains
   ! read_input_file: reads input file (testpoints.in) testoutput namelist
   !  for testpoints.x
   subroutine read_input_file_outnml(printm, mweight, printl, mex, grid, &
-          ngpts, dsize, nnout)
+          ngpts, dsize, nnout, colout, coleshift)
           implicit none
-          logical, intent(out) :: printm, mweight, grid, nnout
+          logical, intent(out) :: printm, mweight, grid, nnout, colout
           integer, intent(out) :: printl, ngpts
-          real*8,  intent(out) :: dsize
+          real*8,  intent(out) :: dsize, coleshift
           integer, dimension(2), intent(inout) :: mex
 
           character(25) :: flname = 'testpoints.in'
@@ -661,16 +736,18 @@ contains
           integer, parameter :: fl_not_found = 29
 
           namelist /testoutput/ printm, mweight, printl, mex, grid, ngpts, &
-                  dsize, nnout
+                  dsize, nnout, colout, coleshift
           printm = .false.
           mweight= .false.
           grid=.false.
           nnout=.false.
+          colout=.false.
           ngpts=0
           dsize = 0.01
           printl = 0
           mex(1) = 0
           mex(2) = 0
+          coleshift = 0.0d0
 
           ! Open input file. If file is not found, set printm = .false.
           ! and return. Else, read the file.
