@@ -9,12 +9,17 @@ module xy3
   double precision, dimension(3)   :: xdists
   
   ! Tolerance to use second distance criterion (XYa distances)
-  double precision, parameter :: xdtol = 1d-2
+  double precision, parameter :: xdtol = 1d-1
   
   ! Ordered geometry
   double precision, dimension(3,4) :: canon_geom
+
   ! Mapping
   integer, dimension(4)            :: ymap
+
+  ! For trajectory-use: check which "lobe" we are in
+  logical :: checklobe
+  integer :: lastlobe
   
 contains
   !*
@@ -69,6 +74,10 @@ contains
     ypairs(:,1) = (/ 2, 3, 4 /)
     ypairs(:,2) = (/ 2, 4, 3 /)
     ypairs(:,3) = (/ 4, 3, 2 /)
+
+    checklobe = .true.
+    lastlobe  = 1
+    
     return
   end subroutine init_xy3
 
@@ -81,7 +90,9 @@ contains
     double precision, dimension(3,na), intent(in) :: cgeom
     integer :: index
     call compute_xyatomdists(cgeom, na)
-    index = find_min_array(xdists, 3)
+    index = find_min_array(ydists, 3)
+    write(*,"('YDISTS: ',3f10.5)") ydists
+    write(*,"('XDISTS: ',3f10.5)") xdists
     ! Check if all distances are within XDTOL
     if (    abs(ydists(1)-ydists(2)) .le. xdtol .and. &
             abs(ydists(1)-ydists(3)) .le. xdtol .and. &
@@ -92,6 +103,12 @@ contains
     ymap(2) = ypairs(1,index)
     ymap(3) = ypairs(2,index)
     ymap(4) = ypairs(3,index)
+    if (checklobe) then
+       if (lastlobe .ne. index) then
+          print "(A)", "WARNING: Lobe switch!"
+          lastlobe = index
+       end if
+    end if
     return
   end subroutine make_ymap
 
