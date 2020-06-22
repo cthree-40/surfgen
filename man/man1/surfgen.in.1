@@ -310,6 +310,15 @@ weight
 is applied to the energy, gradient and derivative coupling equations that involve 
 that state.   For couplings, the higher state is used to determine the weight.  
 The highest possible energy bracket (with lowest weight) will be used.
+.It gradcutoff
+.Sy DOUBLE PRECISION [100.D3]
+Energy cutoff for fitting energy gradients. Gradients above this value will not
+be fit. It is advised that this value is 2x greater than energyT(1).
+.It cpcutoff
+.Sy DOUBLE PRECISION [-1]
+Energy cutoff for fitting nonadiabatic coupling. Couplings above this value will
+not be fit. This value should be equal to energyT(1). If not set by user, the 
+variable takes the value of gradcutoff.
 .It ediffcutoff
 .Sy DOUBLE PRECISION [20.]
 .It nrmediff
