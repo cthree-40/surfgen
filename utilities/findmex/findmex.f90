@@ -29,6 +29,7 @@ program findmex
   character*300 :: new_geomfl
   integer           :: constype(MAXCONS) ! constraint types: 1=stretch,2=bend,3=OOP
   double precision, parameter       :: deg2rad=0.01745329251994d0
+  logical :: mol
   
   NAMELIST /MEXOPT/  shift, gtol, dtol, evalcutoff,maxd, maxiter, scale, ncons, cons_atm, cons_val
 
@@ -53,6 +54,7 @@ program findmex
   ncons = 0
   cons_atm=0
   cons_val=0d0
+  mol = .true.
   inquire(file="mexopt.in",exist=ex)
   if(ex)then
     open(unit=fid,file="mexopt.in",access='sequential',form='formatted',&
@@ -137,7 +139,8 @@ program findmex
   
   ! search for intersections
   call findx(natm,nst,cgeom,isurf1,isurf2,maxiter,shift,evalcutoff,gtol,&
-          dtol,maxd,scale,ncons,cons_atm,cons_val,constype)
+          dtol,maxd,scale,ncons,cons_atm,cons_val,constype, &
+          aname)
 
   ! print final geometry information
   print *,"---------------  Final Geometries  ------------------"
@@ -206,9 +209,10 @@ end subroutine calcHess
 !This is then used to construct the Hessian and gradient of the Lagrangian.
 !Newton-Raphson procedure is used to find the critical point.
 !Energy part of the Hessian is done numerically
-subroutine findx(natoms,nstate,cgeom,surf1,surf2,maxiter,shift,evalcutoff,Etol,Stol,maxd,scale,nc,cons_atm,cons_val,constype)
+subroutine findx(natoms,nstate,cgeom,surf1,surf2,maxiter,shift,evalcutoff,Etol,Stol,maxd,scale,nc,cons_atm,cons_val,constype,anm)
   implicit none
   integer, intent(in)                                 ::  natoms,surf1,surf2,maxiter,nstate,nc,cons_atm(4,nc)
+  character(3), dimension(natoms), intent(in)         ::  anm
   double precision,dimension(3*natoms),intent(inout)  ::  cgeom
   double precision,intent(in)                         ::  shift,Etol,Stol,evalcutoff,maxd,scale,cons_val(nc)
   integer,intent(in)                         ::  constype(nc)
@@ -229,13 +233,17 @@ subroutine findx(natoms,nstate,cgeom,surf1,surf2,maxiter,shift,evalcutoff,Etol,S
   double precision                  :: nrmG, nrmD,tmp(1),bval(12),transrot(3*natoms,6),center(3),ovlp(6)
   double precision, external        :: dnrm2
   double precision, parameter       :: amu2au=1.822888484514D3,au2cm1=219474.6305d0
+  double precision, parameter       :: au2ang= 0.529d0
 
   integer           :: offs
   integer           :: LIWORK, LWORK, itmp(1),INFO
   integer           :: iter  , i,j,lindex,nskip
   logical,dimension(:),allocatable :: skip
   logical, parameter  :: debugmode=.false.
+  logical :: mol
 
+  mol = .true.
+  
   allocate(coord_val(nc))
   ! allocate arrays
   ndeg = surf2-surf1+1
@@ -270,7 +278,25 @@ subroutine findx(natoms,nstate,cgeom,surf1,surf2,maxiter,shift,evalcutoff,Etol,S
     end do
     transrot(:,i)=transrot(:,i)/dnrm2(3*natoms,transrot(:,i),1)
   end do
+
+  ! Molden output, open molden.all file.
+  if (mol) then
+     open(file="molden.all",unit=88,status="unknown",action="write",position="rewind")
+     write(88,"(' [Molden Format]')")
+     write(88,"(' [GEOMETRIES] XYZ')")
+  end if
+
+
   do iter=1,maxiter
+     if (mol) then
+         write(88, "(i2,X,A)") natoms, "/coord"
+         write(88, "(i2,X,A)") (iter-1), "/current iter"
+         do i = 1, natoms
+             write(88, "(3X,A,3F11.6)") anm(i), cgeom(i*3-2)*au2ang, &
+                     cgeom(i*3-1)*au2ang, cgeom(i*3)*au2ang
+         end do
+     end if
+
      !recenter geometry
      center =0d0
      do i=1,natoms
@@ -457,7 +483,9 @@ subroutine findx(natoms,nstate,cgeom,surf1,surf2,maxiter,shift,evalcutoff,Etol,S
        print *,"Optimization converged"
        return
      end if
-  end do 
+     
+  end do
+  if (mol) close(88) ! molden.all file
 1000 format("         |Grd|=",E12.5,", |Disp|=",E12.5)
 end subroutine findx 
 
