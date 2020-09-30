@@ -55,6 +55,7 @@ program findmex
   cons_atm=0
   cons_val=0d0
   mol = .true.
+  
   inquire(file="mexopt.in",exist=ex)
   if(ex)then
     open(unit=fid,file="mexopt.in",access='sequential',form='formatted',&
@@ -140,7 +141,7 @@ program findmex
   ! search for intersections
   call findx(natm,nst,cgeom,isurf1,isurf2,maxiter,shift,evalcutoff,gtol,&
           dtol,maxd,scale,ncons,cons_atm,cons_val,constype, &
-          aname)
+          aname, anum, masses)
 
   ! print final geometry information
   print *,"---------------  Final Geometries  ------------------"
@@ -209,10 +210,11 @@ end subroutine calcHess
 !This is then used to construct the Hessian and gradient of the Lagrangian.
 !Newton-Raphson procedure is used to find the critical point.
 !Energy part of the Hessian is done numerically
-subroutine findx(natoms,nstate,cgeom,surf1,surf2,maxiter,shift,evalcutoff,Etol,Stol,maxd,scale,nc,cons_atm,cons_val,constype,anm)
+subroutine findx(natoms,nstate,cgeom,surf1,surf2,maxiter,shift,evalcutoff,Etol,Stol,maxd,scale,nc,cons_atm,cons_val,constype,anm,anu,ams)
   implicit none
   integer, intent(in)                                 ::  natoms,surf1,surf2,maxiter,nstate,nc,cons_atm(4,nc)
   character(3), dimension(natoms), intent(in)         ::  anm
+  double precision,dimension(natoms),intent(in)       ::  anu, ams
   double precision,dimension(3*natoms),intent(inout)  ::  cgeom
   double precision,intent(in)                         ::  shift,Etol,Stol,evalcutoff,maxd,scale,cons_val(nc)
   integer,intent(in)                         ::  constype(nc)
@@ -240,9 +242,10 @@ subroutine findx(natoms,nstate,cgeom,surf1,surf2,maxiter,shift,evalcutoff,Etol,S
   integer           :: iter  , i,j,lindex,nskip
   logical,dimension(:),allocatable :: skip
   logical, parameter  :: debugmode=.false.
-  logical :: mol
+  logical :: mol, popt
 
   mol = .true.
+  popt= .true.
   
   allocate(coord_val(nc))
   ! allocate arrays
@@ -285,6 +288,10 @@ subroutine findx(natoms,nstate,cgeom,surf1,surf2,maxiter,shift,evalcutoff,Etol,S
      write(88,"(' [Molden Format]')")
      write(88,"(' [GEOMETRIES] XYZ')")
   end if
+  ! print geometries of optimization
+  if (popt) then
+      open(file="geomopt.all",unit=89,status="unknown",action="write",position="rewind")
+  end if
 
 
   do iter=1,maxiter
@@ -294,6 +301,12 @@ subroutine findx(natoms,nstate,cgeom,surf1,surf2,maxiter,shift,evalcutoff,Etol,S
          do i = 1, natoms
              write(88, "(3X,A,3F11.6)") anm(i), cgeom(i*3-2)*au2ang, &
                      cgeom(i*3-1)*au2ang, cgeom(i*3)*au2ang
+         end do
+     end if
+     if (popt) then
+         do i = 1, natoms
+             write(89, "(1x,a3,2x,f4.0,1x,3(f13.8,1x),2x,f12.8)") anm(i), anu(i), &
+                 cgeom(i*3-2), cgeom(i*3-1), cgeom(i*3), ams(i)
          end do
      end if
 
@@ -485,7 +498,8 @@ subroutine findx(natoms,nstate,cgeom,surf1,surf2,maxiter,shift,evalcutoff,Etol,S
      end if
      
   end do
-  if (mol) close(88) ! molden.all file
+  if (mol)  close(88) ! molden.all  file
+  if (popt) close(89) ! geomopt.all file
 1000 format("         |Grd|=",E12.5,", |Disp|=",E12.5)
 end subroutine findx 
 
