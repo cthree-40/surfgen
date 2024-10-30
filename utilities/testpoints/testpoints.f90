@@ -15,12 +15,13 @@
 !                     in input.
 !                    Added print level implementation.
 ! 04-23-2019 - CLM - Added functionality to generate g-h grid of geoms
+! 10-30-2024 - CLM - Increased max geometries
 !----------------
 !This program uses surfgen evaluation library for construction and evaluation of
 !Hd, as well as geometry input. 
 program testpoints
   implicit none
-  integer,parameter  ::  MaxGeoms = 15000
+  integer,parameter  ::  MaxGeoms = 35000
   real*8,  parameter ::  au2ang = 0.529177249
   character(255)     ::  geomfl 
   integer            ::  npts, i,j,k,l,m,natoms,nstates,ios,ptid
